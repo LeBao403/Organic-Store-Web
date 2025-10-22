@@ -1,0 +1,95 @@
+﻿@using organic_store.Helpers
+
+@model organic_store.Models.PagerViewModel
+@{
+    int page = Model.Page;
+    int pageSize = Model.PageSize;
+    int totalCount = Model.TotalCount;
+    int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+    int displayPages = Model.DisplayPages;
+
+    string actionName = Model.ActionName;
+    var routeValues = Model.RouteValues ?? new { };
+
+    int startPage, endPage;
+    if (totalPages <= displayPages)
+    {
+        startPage = 1;
+        endPage = totalPages;
+    }
+    else
+    {
+        int middle = displayPages / 2;
+        if (page <= middle + 1)
+        {
+            startPage = 1;
+            endPage = displayPages;
+        }
+        else if (page >= totalPages - middle)
+        {
+            startPage = totalPages - displayPages + 1;
+            endPage = totalPages;
+        }
+        else
+        {
+            startPage = page - middle;
+            endPage = page + middle;
+        }
+    }
+}
+
+@if (totalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center gap-1">
+            <!-- Trang đầu -->
+            <li class="page-item @(page == 1 ? "disabled" : "")">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                   style="width: 40px; height: 40px;"
+                   href="@Url.Action(actionName, routeValues.Merge(new { page = 1 }))" title="Trang đầu">
+                    <i class="bi bi-skip-start-fill"></i>
+                </a>
+            </li>
+
+            <!-- Trang trước -->
+            <li class="page-item @(page == 1 ? "disabled" : "")">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                   style="width: 40px; height: 40px;"
+                   href="@Url.Action(actionName, routeValues.Merge(new { page = page - 1 }))" title="Trang trước">
+                    <i class="bi bi-caret-left-fill"></i>
+                </a>
+            </li>
+
+            <!-- Các trang giữa -->
+            @for (int i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == page ? "active" : "")">
+                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center fw-semibold"
+                       style="width: 40px; height: 40px;"
+                       href="@Url.Action(actionName, routeValues.Merge(new { page = i }))">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <!-- Trang sau -->
+            <li class="page-item @(page == totalPages ? "disabled" : "")">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                   style="width: 40px; height: 40px;"
+                   href="@Url.Action(actionName, routeValues.Merge(new { page = page + 1 }))" title="Trang sau">
+                    <i class="bi bi-caret-right-fill"></i>
+                </a>
+            </li>
+
+            <!-- Trang cuối -->
+            <li class="page-item @(page == totalPages ? "disabled" : "")">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                   style="width: 40px; height: 40px;"
+                   href="@Url.Action(actionName, routeValues.Merge(new { page = totalPages }))" title="Trang cuối">
+                    <i class="bi bi-skip-end-fill"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+}
+

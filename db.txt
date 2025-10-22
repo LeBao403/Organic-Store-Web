@@ -1,0 +1,160 @@
+// XÓA DỮ LIỆU CŨ
+MATCH (n) DETACH DELETE n;
+
+// ==========================
+// 🥦 DANH MỤC
+// ==========================
+CREATE
+(:DanhMuc {MaDM: "DM01", TenDM: "Rau Củ Tươi"}),
+(:DanhMuc {MaDM: "DM02", TenDM: "Trái Cây"}),
+(:DanhMuc {MaDM: "DM03", TenDM: "Ngũ Cốc Hữu Cơ"}),
+(:DanhMuc {MaDM: "DM04", TenDM: "Gia Vị Thiên Nhiên"});
+
+// ==========================
+// 🥕 SẢN PHẨM (mỗi danh mục ~10 sp)
+// ==========================
+CREATE
+// DM01 - Rau củ
+(:SanPham {MaSP:"SP001", TenSP:"Cà rốt Đà Lạt", DonVi:"Kg", GiaBan:35000, MoTa:"Tươi, không thuốc trừ sâu", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP002", TenSP:"Khoai tây vàng", DonVi:"Kg", GiaBan:40000, MoTa:"Khoai tây sạch Đà Lạt", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP003", TenSP:"Cải bó xôi", DonVi:"Bó", GiaBan:45000, MoTa:"Rau xanh lá tươi tốt", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/cai-be_epqmoy.png"}),
+(:SanPham {MaSP:"SP004", TenSP:"Xà lách Romaine", DonVi:"Bó", GiaBan:38000, MoTa:"Tươi giòn, không chất bảo quản", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP005", TenSP:"Bí ngòi xanh", DonVi:"Kg", GiaBan:48000, MoTa:"Giàu chất xơ", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP006", TenSP:"Cà chua bi", DonVi:"Kg", GiaBan:60000, MoTa:"Tươi ngon, đỏ mọng", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP007", TenSP:"Rau muống hữu cơ", DonVi:"Bó", GiaBan:25000, MoTa:"Trồng thủy canh sạch", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP008", TenSP:"Củ dền đỏ", DonVi:"Kg", GiaBan:52000, MoTa:"Tốt cho tim mạch", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP009", TenSP:"Súp lơ xanh", DonVi:"Kg", GiaBan:55000, MoTa:"Giàu vitamin C", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP010", TenSP:"Hành tây vàng", DonVi:"Kg", GiaBan:30000, MoTa:"Thơm, ít cay", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+
+// DM02 - Trái cây
+(:SanPham {MaSP:"SP011", TenSP:"Táo Fuji hữu cơ", DonVi:"Kg", GiaBan:120000, MoTa:"Giòn ngọt", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807550/tao_jcnqpe.jpg"}),
+(:SanPham {MaSP:"SP012", TenSP:"Cam hữu cơ", DonVi:"Kg", GiaBan:85000, MoTa:"Cam sạch, nhiều nước", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807550/tao_jcnqpe.jpg"}),
+(:SanPham {MaSP:"SP013", TenSP:"Chuối cau", DonVi:"Nải", GiaBan:40000, MoTa:"Ngọt tự nhiên", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807550/tao_jcnqpe.jpg"}),
+(:SanPham {MaSP:"SP014", TenSP:"Lê Hàn Quốc", DonVi:"Kg", GiaBan:95000, MoTa:"To, giòn, ngọt mát", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807550/tao_jcnqpe.jpg"}),
+(:SanPham {MaSP:"SP015", TenSP:"Bưởi da xanh", DonVi:"Trái", GiaBan:110000, MoTa:"Thơm ngon", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807550/tao_jcnqpe.jpg"}),
+(:SanPham {MaSP:"SP016", TenSP:"Dưa lưới", DonVi:"Trái", GiaBan:80000, MoTa:"Thơm ngọt", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807550/tao_jcnqpe.jpg"}),
+(:SanPham {MaSP:"SP017", TenSP:"Dâu tây Đà Lạt", DonVi:"Hộp", GiaBan:150000, MoTa:"Tươi, ngọt nhẹ", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807550/tao_jcnqpe.jpg"}),
+(:SanPham {MaSP:"SP018", TenSP:"Nho tím không hạt", DonVi:"Kg", GiaBan:130000, MoTa:"Nhập khẩu Úc", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807550/tao_jcnqpe.jpg"}),
+(:SanPham {MaSP:"SP019", TenSP:"Thanh long ruột đỏ", DonVi:"Kg", GiaBan:55000, MoTa:"Việt Nam, ngọt mát", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807550/tao_jcnqpe.jpg"}),
+(:SanPham {MaSP:"SP020", TenSP:"Xoài cát Hòa Lộc", DonVi:"Kg", GiaBan:90000, MoTa:"Thơm, dẻo", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807550/tao_jcnqpe.jpg"}),
+
+// DM03 - Ngũ cốc
+(:SanPham {MaSP:"SP021", TenSP:"Gạo lứt đỏ", DonVi:"Kg", GiaBan:55000, MoTa:"Tốt cho sức khỏe", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP022", TenSP:"Yến mạch cán mỏng", DonVi:"Gói", GiaBan:70000, MoTa:"Ngũ cốc ăn sáng hữu cơ", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP023", TenSP:"Đậu nành vàng", DonVi:"Kg", GiaBan:60000, MoTa:"Không biến đổi gen", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP024", TenSP:"Đậu xanh sạch", DonVi:"Kg", GiaBan:50000, MoTa:"Giàu protein", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP025", TenSP:"Hạt chia Peru", DonVi:"Gói", GiaBan:120000, MoTa:"Giàu omega-3", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP026", TenSP:"Yến mạch nguyên hạt", DonVi:"Gói", GiaBan:80000, MoTa:"Bữa sáng dinh dưỡng", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP027", TenSP:"Gạo đen hữu cơ", DonVi:"Kg", GiaBan:75000, MoTa:"Giàu sắt và kẽm", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP028", TenSP:"Ngô hạt khô", DonVi:"Kg", GiaBan:40000, MoTa:"Sấy tự nhiên", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP029", TenSP:"Đậu phộng hữu cơ", DonVi:"Kg", GiaBan:65000, MoTa:"Không muối, nguyên hạt", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP030", TenSP:"Yến mạch ăn liền", DonVi:"Gói", GiaBan:70000, MoTa:"Tiện lợi", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+
+// DM04 - Gia vị
+(:SanPham {MaSP:"SP031", TenSP:"Muối hồng Himalaya", DonVi:"Hũ", GiaBan:70000, MoTa:"Tinh khiết", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP032", TenSP:"Tiêu đen Phú Quốc", DonVi:"Hũ", GiaBan:60000, MoTa:"Cay thơm", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP033", TenSP:"Mật ong hoa cà phê", DonVi:"Chai", GiaBan:120000, MoTa:"Ngọt tự nhiên", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP034", TenSP:"Đường thốt nốt", DonVi:"Kg", GiaBan:90000, MoTa:"Không tẩy trắng", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP035", TenSP:"Nước tương hữu cơ", DonVi:"Chai", GiaBan:80000, MoTa:"Lên men tự nhiên", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP036", TenSP:"Dầu mè đen", DonVi:"Chai", GiaBan:100000, MoTa:"Nguyên chất 100%", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP037", TenSP:"Dầu ô liu nguyên chất", DonVi:"Chai", GiaBan:150000, MoTa:"Nhập khẩu Ý", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP038", TenSP:"Bột nghệ hữu cơ", DonVi:"Gói", GiaBan:75000, MoTa:"Chống oxy hóa", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP039", TenSP:"Tương ớt lên men", DonVi:"Chai", GiaBan:65000, MoTa:"Tự nhiên, không phẩm màu", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"}),
+(:SanPham {MaSP:"SP040", TenSP:"Muối tiêu chanh", DonVi:"Hũ", GiaBan:45000, MoTa:"Dùng chấm trái cây", HinhAnhURL:"https://res.cloudinary.com/dhgzp2ifm/image/upload/v1760807548/ca-rot_crarli.png"});
+
+// ==========================
+// 🏙️ THÀNH PHỐ - QUẬN - PHƯỜNG (mở rộng)
+// ==========================
+CREATE
+(:ThanhPho {MaTP:"01", TenTP:"TP. Hà Nội"}),
+(:ThanhPho {MaTP:"79", TenTP:"TP. Hồ Chí Minh"}),
+(:ThanhPho {MaTP:"48", TenTP:"TP. Đà Nẵng"}),
+(:Quan {MaQuan:"001", TenQuan:"Hoàn Kiếm"}),
+(:Quan {MaQuan:"007", TenQuan:"Đống Đa"}),
+(:Quan {MaQuan:"037", TenQuan:"Quận 1"}),
+(:Quan {MaQuan:"045", TenQuan:"Hải Châu"}),
+(:Phuong {MaPhuong:"00101", TenPhuong:"Hàng Gai"}),
+(:Phuong {MaPhuong:"00703", TenPhuong:"Trung Tự"}),
+(:Phuong {MaPhuong:"03702", TenPhuong:"Bến Nghé"}),
+(:Phuong {MaPhuong:"04505", TenPhuong:"Phước Ninh"});
+
+// ==========================
+// 🏬 CỬA HÀNG
+// ==========================
+CREATE
+(:CuaHang {MaCH:"CHHN01", TenCH:"Organic Hoàn Kiếm", DiaChiCuThe:"15 Phố Hàng Bài", SoDienThoai:"024111111"}),
+(:CuaHang {MaCH:"CHHCM01", TenCH:"Organic Quận 1", DiaChiCuThe:"90 Nguyễn Huệ", SoDienThoai:"028222222"}),
+(:CuaHang {MaCH:"CHDN01", TenCH:"Organic Đà Nẵng", DiaChiCuThe:"12 Lê Duẩn", SoDienThoai:"0236333333"});
+
+// ==========================
+// 👨‍💼 NGƯỜI QUẢN TRỊ
+// ==========================
+CREATE
+(:NguoiQuanTri {MaQT:"QT001", HoTen:"Nguyễn Quốc Bảo", Email:"bao@organic.vn", SoDienThoai:"0909000001", TenDangNhap:"quanbao", MatKhau:"admin123"}),
+(:NguoiQuanTri {MaQT:"QT002", HoTen:"Lê Minh Thư", Email:"thu@organic.vn", SoDienThoai:"0918000002", TenDangNhap:"lethu", MatKhau:"admin456"}),
+(:NguoiQuanTri {MaQT:"QT003", HoTen:"Trần Hữu Phúc", Email:"phuc@organic.vn", SoDienThoai:"0909000003", TenDangNhap:"tranphuc", MatKhau:"admin789"});
+
+// ==========================
+// 👩‍🦰 KHÁCH HÀNG
+// ==========================
+CREATE
+(:KhachHang {MaKH:"KH001", HoTen:"Nguyễn Thị A", TenDangNhap:"ngta", MatKhau:"123456", Email:"a@mail.com", SoDienThoai:"0901000001", DiaChiCuThe:"Tầng 5, Tòa nhà M, 120 Đường C", NgaySinh:date("1990-05-15"), LoaiKH:"VIP"}),
+(:KhachHang {MaKH:"KH002", HoTen:"Trần Văn B", TenDangNhap:"tranvb", MatKhau:"654321", Email:"b@mail.com", SoDienThoai:"0988000002", DiaChiCuThe:"Số 34, Ngõ 10, Phố P", NgaySinh:date("1995-11-22"), LoaiKH:"Thường"}),
+(:KhachHang {MaKH:"KH003", HoTen:"Phạm Thị C", TenDangNhap:"phamc", MatKhau:"111222", Email:"c@mail.com", SoDienThoai:"0919000003", DiaChiCuThe:"123 Nguyễn Trãi, Quận 1", NgaySinh:date("1992-03-11"), LoaiKH:"VIP"}),
+(:KhachHang {MaKH:"KH004", HoTen:"Võ Duy Khang", TenDangNhap:"vokhang", MatKhau:"abc123", Email:"khang@mail.com", SoDienThoai:"0917000004", DiaChiCuThe:"45 Nguyễn Văn Linh, Đà Nẵng", NgaySinh:date("1998-09-01"), LoaiKH:"Thường"}),
+(:KhachHang {MaKH:"KH005", HoTen:"Ngô Thị Diễm", TenDangNhap:"ngodiem", MatKhau:"xyz789", Email:"diem@mail.com", SoDienThoai:"0938000005", DiaChiCuThe:"99 Điện Biên Phủ, TP.HCM", NgaySinh:date("1993-07-12"), LoaiKH:"VIP"});
+
+// ==========================
+// 🧾 HÓA ĐƠN
+// ==========================
+CREATE
+(:HoaDon {MaHD:"HD001", ThanhTien:255000, DiaChiGiaoHang:"Tầng 5, Tòa nhà M, 120 Đường C", NgayTao:datetime("2025-10-10T09:30:00Z"), GhiChu:"Giao trước 11h", TrangThaiThanhToan:"Đã thanh toán"}),
+(:HoaDon {MaHD:"HD002", ThanhTien:160000, DiaChiGiaoHang:"Số 34, Ngõ 10, Phố P", NgayTao:datetime("2025-10-12T15:00:00Z"), GhiChu:"Giao trong ngày", TrangThaiThanhToan:"Chưa thanh toán"}),
+(:HoaDon {MaHD:"HD003", ThanhTien:85000, DiaChiGiaoHang:"123 Nguyễn Trãi, Quận 1", NgayTao:datetime("2025-10-15T10:30:00Z"), GhiChu:"Thanh toán khi nhận hàng", TrangThaiThanhToan:"Đã thanh toán"}),
+(:HoaDon {MaHD:"HD004", ThanhTien:200000, DiaChiGiaoHang:"45 Nguyễn Văn Linh, Đà Nẵng", NgayTao:datetime("2025-10-18T08:45:00Z"), GhiChu:"Giao nhanh", TrangThaiThanhToan:"Đã thanh toán"}),
+(:HoaDon {MaHD:"HD005", ThanhTien:175000, DiaChiGiaoHang:"99 Điện Biên Phủ, TP.HCM", NgayTao:datetime("2025-10-19T16:00:00Z"), GhiChu:"Thanh toán online", TrangThaiThanhToan:"Đã thanh toán"});
+
+// ==========================
+// 🔗 QUAN HỆ
+// ==========================
+
+// SanPham - DanhMuc
+MATCH (sp:SanPham), (dm:DanhMuc)
+WHERE sp.MaSP >= "SP001" AND sp.MaSP <= "SP010" AND dm.MaDM = "DM01"
+CREATE (sp)-[:THUOC_DANHMUC]->(dm);
+
+MATCH (sp:SanPham), (dm:DanhMuc)
+WHERE sp.MaSP >= "SP011" AND sp.MaSP <= "SP020" AND dm.MaDM = "DM02"
+CREATE (sp)-[:THUOC_DANHMUC]->(dm);
+
+MATCH (sp:SanPham), (dm:DanhMuc)
+WHERE sp.MaSP >= "SP021" AND sp.MaSP <= "SP030" AND dm.MaDM = "DM03"
+CREATE (sp)-[:THUOC_DANHMUC]->(dm);
+
+MATCH (sp:SanPham), (dm:DanhMuc)
+WHERE sp.MaSP >= "SP031" AND sp.MaSP <= "SP040" AND dm.MaDM = "DM04"
+CREATE (sp)-[:THUOC_DANHMUC]->(dm);
+
+// KhachHang - HoaDon
+MATCH (kh:KhachHang {MaKH:"KH001"}), (hd:HoaDon {MaHD:"HD001"}) CREATE (kh)-[:TAO_HOADON]->(hd);
+MATCH (kh:KhachHang {MaKH:"KH002"}), (hd:HoaDon {MaHD:"HD002"}) CREATE (kh)-[:TAO_HOADON]->(hd);
+MATCH (kh:KhachHang {MaKH:"KH003"}), (hd:HoaDon {MaHD:"HD003"}) CREATE (kh)-[:TAO_HOADON]->(hd);
+MATCH (kh:KhachHang {MaKH:"KH004"}), (hd:HoaDon {MaHD:"HD004"}) CREATE (kh)-[:TAO_HOADON]->(hd);
+MATCH (kh:KhachHang {MaKH:"KH005"}), (hd:HoaDon {MaHD:"HD005"}) CREATE (kh)-[:TAO_HOADON]->(hd);
+
+// HoaDon - SanPham (mẫu)
+MATCH (hd:HoaDon {MaHD:"HD001"}), (sp:SanPham) WHERE sp.MaSP IN ["SP001","SP011","SP021"] CREATE (hd)-[:CHUA_SANPHAM {SoLuong:2}]->(sp);
+MATCH (hd:HoaDon {MaHD:"HD002"}), (sp:SanPham) WHERE sp.MaSP IN ["SP004","SP012","SP031"] CREATE (hd)-[:CHUA_SANPHAM {SoLuong:1}]->(sp);
+MATCH (hd:HoaDon {MaHD:"HD003"}), (sp:SanPham) WHERE sp.MaSP IN ["SP019","SP036"] CREATE (hd)-[:CHUA_SANPHAM {SoLuong:1}]->(sp);
+MATCH (hd:HoaDon {MaHD:"HD004"}), (sp:SanPham) WHERE sp.MaSP IN ["SP025","SP033"] CREATE (hd)-[:CHUA_SANPHAM {SoLuong:3}]->(sp);
+MATCH (hd:HoaDon {MaHD:"HD005"}), (sp:SanPham) WHERE sp.MaSP IN ["SP015","SP035"] CREATE (hd)-[:CHUA_SANPHAM {SoLuong:2}]->(sp);
+
+// CuaHang - SanPham
+MATCH (ch:CuaHang {MaCH:"CHHN01"}), (sp:SanPham) WHERE sp.MaSP <= "SP010" CREATE (ch)-[:CUNG_CAP]->(sp);
+MATCH (ch:CuaHang {MaCH:"CHHCM01"}), (sp:SanPham) WHERE sp.MaSP >= "SP011" AND sp.MaSP <= "SP030" CREATE (ch)-[:CUNG_CAP]->(sp);
+MATCH (ch:CuaHang {MaCH:"CHDN01"}), (sp:SanPham) WHERE sp.MaSP >= "SP031" AND sp.MaSP <= "SP040" CREATE (ch)-[:CUNG_CAP]->(sp);
+
+// NguoiQuanTri - CuaHang
+MATCH (qt:NguoiQuanTri {MaQT:"QT001"}), (ch:CuaHang {MaCH:"CHHN01"}) CREATE (qt)-[:QUAN_LY]->(ch);
+MATCH (qt:NguoiQuanTri {MaQT:"QT002"}), (ch:CuaHang {MaCH:"CHHCM01"}) CREATE (qt)-[:QUAN_LY]->(ch);
+MATCH (qt:NguoiQuanTri {MaQT:"QT003"}), (ch:CuaHang {MaCH:"CHDN01"}) CREATE (qt)-[:QUAN_LY]->(ch);

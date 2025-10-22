@@ -1,0 +1,194 @@
+﻿:root {
+    /* Màu chính - xanh lá dịu mắt hơn */
+    --primary-color: #4caf50; /* Xanh lá tươi vừa phải */
+    --secondary-color: #81c784; /* Xanh lá nhạt */
+    --primary-green: #2e7d32; /* Xanh rừng đậm */
+    --light-green: #a5d6a7; /* Xanh pastel */
+    --hover-green: #66bb6a; /* Hover nhẹ nhàng */
+    --bg-light: #f4fdf5; /* Nền sáng */
+    --btn-gradient-start: #66bb6a; /* Gradient nhạt hơn */
+    --btn-gradient-end: #81c784; /* Gradient nhạt hơn */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 1rem 0;
+    transition: transform 0.5s ease-in-out;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #000;
+}
+
+    .navbar-brand img {
+        height: 30px;
+    }
+
+.nav-link {
+    color: #000;
+    font-weight: 500;
+    margin-left: 1.5rem;
+}
+
+    .nav-link:hover {
+        color: var(--primary-color);
+    }
+
+.search-bar {
+    background: #f1f1f1;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    display: flex;
+    align-items: center;
+    width: 150px;
+}
+
+    .search-bar .fas {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .search-bar input {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+footer {
+    background: var(--primary-green); /* Màu xanh đậm đơn giản */
+    color: white;
+    padding: 3rem 0 1.5rem 0;
+    margin-top: 5rem;
+}
+
+    footer .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 3rem;
+        margin-bottom: 2rem;
+    }
+
+    footer .footer-section {
+        padding: 0 1rem;
+    }
+
+    footer h5 {
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+        footer h5::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--secondary-color);
+            border-radius: 2px;
+        }
+
+    footer ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        footer ul li {
+            margin-bottom: 0.8rem;
+        }
+
+            footer ul li a {
+                color: rgba(255, 255, 255, 0.85);
+                text-decoration: none;
+                transition: all 0.3s ease;
+                display: inline-block;
+            }
+
+                footer ul li a:hover {
+                    color: white;
+                    padding-left: 5px;
+                    transform: translateX(5px);
+                }
+
+    footer .social-icons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+        footer .social-icons a {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+            footer .social-icons a:hover {
+                background: var(--secondary-color);
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(129, 199, 132, 0.4);
+            }
+
+    footer .footer-bottom {
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+        footer .footer-bottom p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+        }
+
+
+
+.pagination .page-link {
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+    .pagination .page-link:hover {
+        background-color: var(--primary-color);
+        color: #fff;
+        border-color: var(--primary-color);
+    }
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #ccc;
+    border-color: #ccc;
+    cursor: not-allowed;
+}

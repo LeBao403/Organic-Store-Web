@@ -1,0 +1,23 @@
+# Thư mục .vs của Visual Studio
+.vs/
+organic_store/.vs/
+
+# Thư mục build
+[Bb]in/
+[Oo]bj/
+organic_store/bin/
+organic_store/obj/
+
+# Gói NuGet
+packages/
+organic_store/packages/
+
+# File user
+*.user
+organic_store/organic_store.csproj.user
+
+# File rác
+*.suo
+*.pdb
+*.dll
+*.exe

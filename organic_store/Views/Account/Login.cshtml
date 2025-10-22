@@ -1,0 +1,55 @@
+﻿@{
+    ViewBag.Title = "Đăng Nhập";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="~/assets/css/Login_SignUp.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-wrapper">
+            <div id="loginForm" class="form-container">
+                <h2>Đăng Nhập</h2>
+                <p class="subtitle">Chào mừng bạn trở lại!</p>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="error-message">@ViewBag.Error</div>
+                }
+
+                @using (Html.BeginForm("Login", "Account", FormMethod.Post))
+                {
+                    <div class="input-group">
+                        <label for="TenDangNhap">Tên đăng nhập</label>
+                        <input type="text" id="TenDangNhap" name="TenDangNhap" required placeholder="Nhập tên đăng nhập" />
+                    </div>
+
+                    <div class="input-group password-toggle">
+                        <label for="MatKhau">Mật khẩu</label>
+                        <input type="password" id="MatKhau" name="MatKhau" required placeholder="Nhập mật khẩu" />
+                        <span class="toggle-icon" onclick="togglePassword('MatKhau')">👁️</span>
+                    </div>
+
+                    <button type="submit" class="btn">Đăng Nhập</button>
+                }
+                <div class="register-link">
+                    <p>Chưa có tài khoản? <a href="@Url.Action("Register", "Account")">Đăng Ký</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+</body>
+</html>

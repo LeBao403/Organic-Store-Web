@@ -1,0 +1,35 @@
+﻿/* Responsive chung cho toàn project */
+
+/* Grid và layout */
+@media (max-width: 1200px) {
+    .container {
+        padding: 0 15px;
+    }
+}
+
+/* Profile */
+@media (max-width: 992px) {
+    .profile-content {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-stats {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+}
+
+/* Mobile nhỏ hơn 576px */
+@media (max-width: 576px) {
+    .profile-header {
+        text-align: center;
+    }
+
+    .profile-stats {
+        justify-content: center;
+    }
+
+    .sidebar-menu a {
+        padding: 0.5rem 1rem;
+    }
+}

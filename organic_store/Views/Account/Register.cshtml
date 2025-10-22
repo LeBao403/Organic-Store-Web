@@ -1,0 +1,82 @@
+﻿@model organic_store.Models.KhachHang
+
+@{
+    ViewBag.Title = "Đăng Ký";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="~/assets/css/Login_SignUp.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-wrapper">
+            <div id="registerForm" class="form-container">
+                <h2>Đăng Ký</h2>
+                <p class="subtitle">Tạo tài khoản mới</p>
+
+                @* Hiển thị thông báo lỗi nghiệp vụ *@
+                @if (ViewBag.Error != null)
+                {
+                    <div class="error-message">@ViewBag.Error</div>
+                }
+
+                @* Hiển thị thông báo thành công *@
+                @if (ViewBag.Success != null)
+                {
+                    <div class="success-message">@ViewBag.Success</div>
+                }
+
+                @* Chỉ hiện form khi chưa đăng ký thành công *@
+                @if (ViewBag.Success == null)
+                {
+                    using (Html.BeginForm("Register", "Account", FormMethod.Post))
+                    {
+                        <div class="input-group">
+                            <label for="TenDangNhap">Tên đăng nhập</label>
+                            @Html.TextBoxFor(m => m.TenDangNhap, new { @id = "TenDangNhap", placeholder = "Chọn tên đăng nhập", required = "required" })
+                            @Html.ValidationMessageFor(m => m.TenDangNhap, "", new { @class = "error-message" })
+                        </div>
+
+                        <div class="input-group password-toggle">
+                            <label for="MatKhau">Mật khẩu</label>
+                            @Html.PasswordFor(m => m.MatKhau, new { @id = "MatKhau", placeholder = "Tạo mật khẩu", required = "required" })
+                            @Html.ValidationMessageFor(m => m.MatKhau, "", new { @class = "error-message" })
+                            <span class="toggle-icon" onclick="togglePassword('MatKhau')">👁️</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="Email">Email</label>
+                            @Html.TextBoxFor(m => m.Email, new { @id = "Email", placeholder = "example@email.com", type = "email", required = "required" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "error-message" })
+                        </div>
+
+                        <div class="input-group">
+                            <label for="SoDienThoai">Số điện thoại</label>
+                            @Html.TextBoxFor(m => m.SoDienThoai, new { @id = "SoDienThoai", placeholder = "0912345678", required = "required", pattern = "[0-9]{10,11}" })
+                            @Html.ValidationMessageFor(m => m.SoDienThoai, "", new { @class = "error-message" })
+                        </div>
+
+                        <button type="submit" class="btn">Đăng Ký</button>
+                    }
+                    <div class="login-link">
+                        <p>Đã có tài khoản? <a href="@Url.Action("Login", "Account")">Quay lại đăng nhập</a></p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+</body>
+</html>
