@@ -1,16 +1,15 @@
-﻿using System;
+﻿// organic_store.Models/Products.cs
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
 namespace organic_store.Models
 {
-	public class Products
-	{
-        // ID nội bộ của Neo4j Node (ID(p))
+    public class Products
+    {
         public long Id { get; set; }
-
-        // Các thuộc tính ánh xạ từ Neo4j
         public string MaSP { get; set; }
         public string TenSP { get; set; }
         public string DonVi { get; set; }
@@ -19,7 +18,11 @@ namespace organic_store.Models
         public string HinhAnhURL { get; set; }
 
         // Quan hệ
-        public string MaDM { get; set; } // Thuộc danh mục nào
+        public string MaDM { get; set; } 
+
+        // THUỘC TÍNH MỚI CHO LOGIC CỬA HÀNG
+        public long SoTon { get; set; } // Số lượng tồn kho tại cửa hàng (lấy từ quan hệ CUNG_CAP)
+        public string TenCH { get; set; } // Tên cửa hàng đang hiển thị (hoặc "Tất cả")
 
     }
 }

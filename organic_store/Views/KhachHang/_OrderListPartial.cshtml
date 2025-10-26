@@ -1,0 +1,32 @@
+﻿@model List<organic_store.Models.HoaDon>
+
+<h2 class="section-title">Đơn hàng của tôi</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info text-center">Bạn chưa có đơn hàng nào.</div>
+}
+else
+{
+    foreach (var hd in Model)
+    {
+        <div class="order-card mb-3 p-3 border rounded shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Mã Đơn: <span class="text-primary">@hd.MaHD</span></h5>
+                <span class="badge @(hd.TrangThaiThanhToan == "Đã thanh toán" ? "bg-success" : "bg-warning text-dark")">
+                    @hd.TrangThaiThanhToan
+                </span>
+            </div>
+            <hr />
+            <div class="order-details">
+                <p><strong>Ngày tạo:</strong> @hd.NgayTao.ToString("dd/MM/yyyy HH:mm")</p>
+                <p><strong>Tổng tiền:</strong> <span class="text-danger fw-bold">@string.Format("{0:N0}", hd.ThanhTien) VNĐ</span></p>
+                <p><strong>Địa chỉ giao:</strong> @hd.DiaChiGiaoHang</p>
+                <p><strong>Ghi chú:</strong> @hd.GhiChu</p>
+                <div class="text-end mt-3">
+                    <a href="@Url.Action("Detail", "HoaDon", new { id = hd.MaHD })" class="btn btn-sm btn-outline-success">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+    }
+}

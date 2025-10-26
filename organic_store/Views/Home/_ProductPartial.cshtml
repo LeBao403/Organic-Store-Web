@@ -2,7 +2,7 @@
 
 @if (!Model.Any())
 {
-    <p>Không có sản phẩm nào để hiển thị.</p>
+    <p class="text-center text-muted">Không có sản phẩm nào để hiển thị.</p>
 }
 else
 {
@@ -12,15 +12,39 @@ else
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card product-card h-100">
                     <div class="position-relative">
-                        <span class="badge-discount">-@($"{new Random().Next(10, 40)}%")</span>
-                        <img src="@item.HinhAnhURL" class="product-image" alt="@item.TenSP" onerror="this.src='/path/to/default-image.jpg'" />
+                        @* Logic khuyến mãi: Giữ nguyên badge, nhưng khuyến nghị tính toán ở Controller *@
+                        <span class="badge-discount">-25%</span> @* Thay bằng giá trị cố định hoặc tính từ Model *@
+                        <img src="@item.HinhAnhURL" class="product-image" alt="@item.TenSP" onerror="this.src='~/assets/Images/default-image.jpg'" />
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">@item.TenSP</h5>
                         <p class="card-text text-muted">@item.MoTa</p>
+
+                        @* BỔ SUNG THÔNG TIN CỬA HÀNG VÀ TỒN KHO *@
+                        @if (!string.IsNullOrEmpty(item.TenCH) && item.TenCH != "Tất cả")
+                        {
+                            <p class="mb-1 small">
+                                <i class="fas fa-store text-info me-1"></i>
+                                **Cửa hàng:** <span class="fw-bold">@item.TenCH</span>
+                            </p>
+                            <p class="mb-2 small @(item.SoTon > 0 ? "text-success" : "text-danger")">
+                                <i class="fas fa-boxes me-1"></i>
+                                **Tồn kho:** <span class="fw-bold">@(item.SoTon > 0 ? item.SoTon.ToString() : "Hết hàng")</span>
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="mb-2 small text-muted">
+                                <i class="fas fa-globe me-1"></i>
+                                **Cửa hàng:** @item.TenCH
+                            </p>
+                        }
+                        @* KẾT THÚC BỔ SUNG *@
+
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <span class="product-price">@String.Format("{0:N0}đ", item.GiaBan)</span>
+                                <span class="product-unit">/@item.DonVi</span> @* Thêm đơn vị tính *@
                             </div>
                             <div>
                                 <i class="fas fa-star text-warning"></i>
@@ -30,8 +54,8 @@ else
                                 <i class="fas fa-star-half-alt text-warning"></i>
                             </div>
                         </div>
-                        <button class="btn btn-add-cart w-100 mt-3">
-                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                        <button class="btn btn-add-cart w-100 mt-3" @(item.SoTon == 0 && item.TenCH != "Tất cả" ? "disabled" : "")>
+                            <i class="fas fa-cart-plus"></i> @(item.SoTon == 0 && item.TenCH != "Tất cả" ? "Hết hàng" : "Thêm vào giỏ")
                         </button>
                     </div>
                 </div>

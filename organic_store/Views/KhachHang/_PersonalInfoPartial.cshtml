@@ -1,0 +1,71 @@
+﻿@model organic_store.Models.KhachHang
+
+<h2 class="section-title">Thông Tin Cá Nhân</h2>
+
+<div class="info-card">
+    <div class="info-row"><span class="info-label">Họ và tên:</span><span class="info-value">@Model.HoTen</span></div>
+    <div class="info-row"><span class="info-label">Số điện thoại:</span><span class="info-value">@Model.SoDienThoai</span></div>
+    <div class="info-row"><span class="info-label">Email:</span><span class="info-value">@Model.Email</span></div>
+
+    @* Kiểm tra NgaySinh khác DateTime.MinValue *@
+    <div class="info-row"><span class="info-label">Ngày sinh:</span><span class="info-value">@(Model.NgaySinh != DateTime.MinValue ? Model.NgaySinh.ToString("dd/MM/yyyy") : "Chưa có")</span></div>
+
+    @* Đã xóa phần hiển thị Giới tính *@
+    @* <div class="info-row"><span class="info-label">Giới tính:</span><span class="info-value">@Model.GioiTinh</span></div> *@
+
+    <div class="info-row"><span class="info-label">Địa chỉ:</span><span class="info-value">@Model.DiaChiCuThe</span></div>
+</div>
+
+@using (Html.BeginForm("UpdateProfile", "KhachHang", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" class="form-control" name="HoTen" value="@Model.HoTen">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-label">Số điện thoại</label>
+                <input type="tel" class="form-control" name="SoDienThoai" value="@Model.SoDienThoai">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="Email" value="@Model.Email">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-label">Ngày sinh</label>
+                <input type="date" class="form-control" name="NgaySinh" value="@(Model.NgaySinh != DateTime.MinValue ? Model.NgaySinh.ToString("yyyy-MM-dd") : "")">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        @* Đã xóa hoàn toàn phần Giới tính, dời Địa chỉ lên chiếm hết 12 cột hoặc dùng 6 cột *@
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" class="form-control" name="DiaChiCuThe" value="@Model.DiaChiCuThe">
+            </div>
+        </div>
+
+        @* Bạn có thể dời nút Đổi mật khẩu hoặc các thông tin khác vào cột trống này nếu cần *@
+        <div class="col-md-6">
+            @* Cột trống còn lại *@
+        </div>
+    </div>
+
+    <div class="text-end">
+        <button type="reset" class="btn btn-cancel">Hủy</button>
+        <button type="submit" class="btn btn-save"><i class="fas fa-save me-2"></i>Lưu thay đổi</button>
+    </div>
+}

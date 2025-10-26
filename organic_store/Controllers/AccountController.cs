@@ -36,10 +36,10 @@ namespace organic_store.Controllers
 
             if (user is KhachHang kh)
             {
-                Session["MaKH"] = kh.MaKH;
+                Session["MaKH"] = kh.MaKH; // Lưu MaKH vào Session
                 return RedirectToAction("Index", "Home");
             }
-                
+
             else
                 return RedirectToAction("Dashboard", "HomeAdmin");
         }
@@ -65,7 +65,7 @@ namespace organic_store.Controllers
                 return View(model);
             }
 
-            // Đăng ký tài khoản
+            // Đăng ký tài khoản (Service sẽ tự động tạo MaKH)
             bool result = await _accountService.RegisterKhachHangAsync(model);
             if (result)
             {

@@ -2,6 +2,9 @@
 @{
     ViewBag.Title = "Trang Chủ";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    // Ép kiểu ViewBag.Stores sang List<CuaHang> để sử dụng
+    var stores = ViewBag.Stores as List<organic_store.Models.CuaHang>; 
+    string selectedStore = ViewBag.SelectedStore;
 }
 
 <link rel="stylesheet" href="~/assets/css/home.css">
@@ -24,7 +27,6 @@
     }
 </style>
 
-<!-- Slider -->
 <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-indicators">
         <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active"></button>
@@ -62,7 +64,6 @@
     </button>
 </div>
 
-<!-- Categories -->
 <section class="category-section">
     <div class="container">
         <h2 class="section-title">Danh Mục Sản Phẩm</h2>
@@ -95,17 +96,41 @@
     </div>
 </section>
 
-<!-- Products -->
 <section class="container my-5">
-    <h2 class="section-title">Tất Cả Sản Phẩm</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title mb-0">Tất Cả Sản Phẩm</h2>
+        
+        <div class="store-filter d-flex align-items-center">
+            <label for="storeSelect" class="form-label mb-0 me-2 fw-bold">Xem sản phẩm tại:</label>
+            <select id="storeSelect" class="form-select" style="width: 250px;" onchange="filterByStore(this.value)">
+                <option value="ALL" @(selectedStore == "ALL" ? "selected" : "")>-- Tất cả Cửa hàng --</option>
+                @if (stores != null)
+                {
+                    foreach (var store in stores)
+                    {
+                        <option value="@store.MaCH" @(selectedStore == store.MaCH ? "selected" : "")>
+                            @store.DisplayName
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+        </div>
+
     <div id="homeResult">
-        @Html.Partial("_ProductPartial", Model)
+        @* Partial view hiển thị danh sách sản phẩm *@
+        @Html.Partial("_ProductPartial", Model) 
     </div>
 
+    @* Partial view phân trang *@
     @Html.Partial("_PaginationHome")
 </section>
 
 <script>
+    function filterByStore(maCH) {
+        window.location.href = '@Url.Action("Index", "Home")' + '?maCH=' + maCH;
+    }
+    
     // Auto slide carousel
     var carousel = new bootstrap.Carousel(document.getElementById('mainCarousel'), {
         interval: 3000,
@@ -114,4 +139,22 @@
 </script>
 @section Scripts {
     <script src="~/assets/js/live-search.js"></script>
+    <script>
+        // CẬP NHẬT LOGIC LIVE SEARCH: Đảm bảo gửi kèm MaCH
+        $(document).ready(function () {
+            // Cập nhật thuộc tính data-url của input search khi trang load
+            // Điều này đảm bảo khi người dùng gõ tìm kiếm, MaCH hiện tại sẽ được gửi kèm
+            $('.live-search').attr('data-url', function () {
+                const maCH = $('#storeSelect').val() || 'ALL'; // Lấy MaCH hiện tại
+                // Trả về URL tìm kiếm với MaCH đã được thêm vào
+                return '@Url.Action("Search", "Home")?maCH=' + maCH;
+            });
+            
+            // Xử lý khi giá trị dropdown thay đổi để cập nhật lại data-url
+            $('#storeSelect').change(function() {
+                const maCH = $(this).val();
+                $('.live-search').attr('data-url', '@Url.Action("Search", "Home")?maCH=' + maCH);
+            });
+        });
+    </script>
 }

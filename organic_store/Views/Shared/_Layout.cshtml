@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using organic_store.Models
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -10,7 +11,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
 </head>
 <body>
-    <!-- Navbar -->
+
+    @* Lấy thông tin người dùng Khách Hàng từ Session *@
+    @{
+        // Ép kiểu trực tiếp sang KhachHang
+        var currentKhachHang = Session["CurrentUser"] as organic_store.Models.KhachHang;
+    }
+
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="@Url.Action("Index", "Home")">Organic Shop</a>
@@ -34,6 +41,7 @@
                 </ul>
             </div>
             <div class="d-flex align-items-center">
+
                 <div class="search-bar me-3">
                     <i class="fas fa-search text-muted"></i>
                     <input type="text" class="form-control-plaintext live-search"
@@ -41,9 +49,27 @@
                            data-target="#homeResult"
                            placeholder="Tìm kiếm ...">
                 </div>
-                <a href="@Url.Action("CheckLogin", "Account")" class="text-dark me-3">
-                    <i class="fas fa-user"></i>
-                </a>
+
+                @* LOGIC HIỂN THỊ TÊN HOẶC ICON USER *@
+                <div class="me-3">
+                    @if (currentKhachHang != null)
+                    {
+                        // Đã đăng nhập: Hiển thị "Hi, Tên"
+                        <span class="text-dark">
+                            <a href="@Url.Action("CheckLogin", "Account")" class="text-dark text-decoration-none" title="Trang cá nhân">
+                                <span class="fw-bold">Hi, @currentKhachHang.HoTen</span>
+                            </a>
+                        </span>
+                    }
+                    else
+                    {
+                        // Chưa đăng nhập: Hiển thị icon user
+                        <a href="@Url.Action("CheckLogin", "Account")" class="text-dark" title="Đăng nhập / Đăng ký">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    }
+                </div>
+                @* KẾT THÚC LOGIC *@
 
                 <a href="#" class="text-dark position-relative">
                     <i class="fas fa-shopping-cart"></i>
@@ -57,7 +83,6 @@
         @RenderBody()
     </div>
 
-    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="footer-content">
@@ -87,13 +112,12 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 KidsShop. Mang niềm vui đến cho trẻ thơ.</p>
+                <p>&copy; 2025 Organic Shop. Mang niềm vui đến cho mọi nhà.</p>
             </div>
         </div>
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("scripts", required: false)
     <script>

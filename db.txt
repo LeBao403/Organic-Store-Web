@@ -158,3 +158,98 @@ MATCH (ch:CuaHang {MaCH:"CHDN01"}), (sp:SanPham) WHERE sp.MaSP >= "SP031" AND sp
 MATCH (qt:NguoiQuanTri {MaQT:"QT001"}), (ch:CuaHang {MaCH:"CHHN01"}) CREATE (qt)-[:QUAN_LY]->(ch);
 MATCH (qt:NguoiQuanTri {MaQT:"QT002"}), (ch:CuaHang {MaCH:"CHHCM01"}) CREATE (qt)-[:QUAN_LY]->(ch);
 MATCH (qt:NguoiQuanTri {MaQT:"QT003"}), (ch:CuaHang {MaCH:"CHDN01"}) CREATE (qt)-[:QUAN_LY]->(ch);
+
+
+
+ // NHÀ CUNG CẤP
+// ==========================
+CREATE
+(:NhaCungCap {MaNCC: "NCC01", TenNCC: "Farm An Toàn HN", DiaChi: "123 Đường Sạch, Hà Nội", SoDienThoai: "0901234567", Email: "contact@farmantoan.vn"}),
+(:NhaCungCap {MaNCC: "NCC02", TenNCC: "Vườn Trái Cây Miền Nam", DiaChi: "456 Đường Ngọt, TP.HCM", SoDienThoai: "0987654321", Email: "fruits@miennam.com"}),
+(:NhaCungCap {MaNCC: "NCC03", TenNCC: "Ngũ Cốc Xanh", DiaChi: "789 Đường Dinh Dưỡng, Đà Nẵng", SoDienThoai: "0912345678", Email: "ngucocxanh@mail.com"});
+
+// (Mối quan hệ: NhaCungCap - NHAP_HANG - PhieuNhap)
+// ==========================
+CREATE
+(:PhieuNhap {MaPN: "PN001", NgayLap: date("2025-10-01"), ThanhTien: 5500000}),
+(:PhieuNhap {MaPN: "PN002", NgayLap: date("2025-10-05"), ThanhTien: 7200000}),
+(:PhieuNhap {MaPN: "PN003", NgayLap: date("2025-10-10"), ThanhTien: 3000000});
+
+// Quan hệ NhaCungCap - PhieuNhap
+MATCH (ncc:NhaCungCap {MaNCC:"NCC01"}), (pn:PhieuNhap {MaPN:"PN001"}) CREATE (ncc)-[:CUNG_CAP_PHIEU]->(pn);
+MATCH (ncc:NhaCungCap {MaNCC:"NCC02"}), (pn:PhieuNhap {MaPN:"PN002"}) CREATE (ncc)-[:CUNG_CAP_PHIEU]->(pn);
+MATCH (ncc:NhaCungCap {MaNCC:"NCC03"}), (pn:PhieuNhap {MaPN:"PN003"}) CREATE (ncc)-[:CUNG_CAP_PHIEU]->(pn);
+
+// Quan hệ PhieuNhap - SanPham (chi tiết phiếu nhập)
+// PN001: SP001 - Cà rốt (10kg), SP002 - Khoai tây (8kg)
+MATCH (pn:PhieuNhap {MaPN:"PN001"}), (sp:SanPham) WHERE sp.MaSP = "SP001" CREATE (pn)-[:NHAP_SANPHAM {SoLuong: 10, DonGiaNhap: 25000}]->(sp);
+MATCH (pn:PhieuNhap {MaPN:"PN001"}), (sp:SanPham) WHERE sp.MaSP = "SP002" CREATE (pn)-[:NHAP_SANPHAM {SoLuong: 8, DonGiaNhap: 30000}]->(sp);
+
+// PN002: SP011 - Táo Fuji (5kg), SP012 - Cam (10kg)
+MATCH (pn:PhieuNhap {MaPN:"PN002"}), (sp:SanPham) WHERE sp.MaSP = "SP011" CREATE (pn)-[:NHAP_SANPHAM {SoLuong: 5, DonGiaNhap: 100000}]->(sp);
+MATCH (pn:PhieuNhap {MaPN:"PN002"}), (sp:SanPham) WHERE sp.MaSP = "SP012" CREATE (pn)-[:NHAP_SANPHAM {SoLuong: 10, DonGiaNhap: 70000}]->(sp);
+
+
+// ĐÁNH GIÁ
+// (Mối quan hệ: KhachHang - VIET_DANH_GIA - DanhGia - DANH_GIA_CHO - SanPham)
+// ==========================
+CREATE
+(:DanhGia {MaDG: "DG001", SoSao: 5, BinhLuan: "Rau củ tươi ngon, giao hàng nhanh.", NgayTao: datetime("2025-10-11T12:00:00Z")}),
+(:DanhGia {MaDG: "DG002", SoSao: 4, BinhLuan: "Táo giòn, ngọt nhưng hơi mắc.", NgayTao: datetime("2025-10-16T15:30:00Z")}),
+(:DanhGia {MaDG: "DG003", SoSao: 5, BinhLuan: "Dầu ô liu nguyên chất, rất ưng ý.", NgayTao: datetime("2025-10-20T09:00:00Z")});
+
+// Quan hệ KhachHang - DanhGia - SanPham
+// KH001 đánh giá SP001
+MATCH (kh:KhachHang {MaKH:"KH001"}), (dg:DanhGia {MaDG:"DG001"}) CREATE (kh)-[:VIET_DANH_GIA]->(dg);
+MATCH (dg:DanhGia {MaDG:"DG001"}), (sp:SanPham {MaSP:"SP001"}) CREATE (dg)-[:DANH_GIA_CHO]->(sp);
+
+// KH003 đánh giá SP011
+MATCH (kh:KhachHang {MaKH:"KH003"}), (dg:DanhGia {MaDG:"DG002"}) CREATE (kh)-[:VIET_DANH_GIA]->(dg);
+MATCH (dg:DanhGia {MaDG:"DG002"}), (sp:SanPham {MaSP:"SP011"}) CREATE (dg)-[:DANH_GIA_CHO]->(sp);
+
+// KH005 đánh giá SP037
+MATCH (kh:KhachHang {MaKH:"KH005"}), (dg:DanhGia {MaDG:"DG003"}) CREATE (kh)-[:VIET_DANH_GIA]->(dg);
+MATCH (dg:DanhGia {MaDG:"DG003"}), (sp:SanPham {MaSP:"SP037"}) CREATE (dg)-[:DANH_GIA_CHO]->(sp);
+
+
+// KHUYẾN MÃI
+// (Mối quan hệ: KhuyenMai - AP_DUNG_CHO - SanPham / DanhMuc)
+// ==========================
+CREATE
+(:KhuyenMai {MaKM: "KM001", PhanTram: 10, ThoiGianBatDau: datetime("2025-11-01T00:00:00Z"), ThoiGianKetThuc: datetime("2025-11-15T23:59:59Z")}),
+(:KhuyenMai {MaKM: "KM002", PhanTram: 15, ThoiGianBatDau: datetime("2025-10-25T00:00:00Z"), ThoiGianKetThuc: datetime("2025-10-31T23:59:59Z")});
+
+// Quan hệ KhuyenMai - SanPham / DanhMuc
+// KM001: Giảm 10% cho toàn bộ Danh Mục "Trái Cây" (DM02)
+MATCH (km:KhuyenMai {MaKM:"KM001"}), (dm:DanhMuc {MaDM:"DM02"}) CREATE (km)-[:AP_DUNG_CHO]->(dm);
+
+// KM002: Giảm 15% cho sản phẩm "Gạo lứt đỏ" (SP021)
+MATCH (km:KhuyenMai {MaKM:"KM002"}), (sp:SanPham {MaSP:"SP021"}) CREATE (km)-[:AP_DUNG_CHO]->(sp);
+
+
+// Thêm SoTon = 5 cho sản phẩm SP001 → SP010 của cửa hàng CHHN01
+MATCH (ch:CuaHang {MaCH:"CHHN01"})-[r:CUNG_CAP]->(sp:SanPham)
+WHERE sp.MaSP <= "SP010"
+SET r.SoTon = 5;
+
+// Thêm SoTon = 8 cho sản phẩm SP011 → SP030 của cửa hàng CHHCM01
+MATCH (ch:CuaHang {MaCH:"CHHCM01"})-[r:CUNG_CAP]->(sp:SanPham)
+WHERE sp.MaSP >= "SP011" AND sp.MaSP <= "SP030"
+SET r.SoTon = 8;
+
+// Thêm SoTon = 10 cho sản phẩm SP031 → SP040 của cửa hàng CHDN01
+MATCH (ch:CuaHang {MaCH:"CHDN01"})-[r:CUNG_CAP]->(sp:SanPham)
+WHERE sp.MaSP >= "SP031" AND sp.MaSP <= "SP040"
+SET r.SoTon = 10;
+
+
+// Phiếu nhập này cho cửa hang
+MATCH (pn:PhieuNhap {MaPN:"PN002"}), (ch:CuaHang {MaCH:"CHHN01"})
+CREATE (pn)-[:NHAP_CHO_CUAHANG]->(ch);
+
+// Cập nhật tồn kho tự động khi phiếu nhập PN002 được nhập cho cửa hàng CHHN01
+MATCH (pn:PhieuNhap {MaPN:"PN002"})-[nhap:NHAP_SANPHAM]->(sp:SanPham),
+      (pn)-[:NHAP_CHO_CUAHANG]->(ch:CuaHang)
+MERGE (ch)-[r:CUNG_CAP]->(sp)
+ON CREATE SET r.SoTon = nhap.SoLuong
+ON MATCH SET r.SoTon = r.SoTon + nhap.SoLuong;

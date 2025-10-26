@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace organic_store.Services
 {
-    public class HomeService
+    public class HomeService : IDisposable
     {
         private readonly IDriver _driver;
 
@@ -16,34 +16,14 @@ namespace organic_store.Services
             _driver = MvcApplication.Neo4jDriver;
         }
 
-        public async Task<List<Products>> GetAllProductsAsync()
+        // Helper: Thực thi truy vấn đọc (Read Transaction)
+        private async Task<T> ExecuteReadAsync<T>(Func<IAsyncSession, Task<T>> action)
         {
             IAsyncSession session = null;
             try
             {
                 session = _driver.AsyncSession(config => config.WithDatabase("organic-store"));
-                var products = await session.ExecuteReadAsync(async tx =>
-                {
-                    var cypherQuery = @"
-                        MATCH (p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)
-                        RETURN p, d
-                    ";
-                    var result = await tx.RunAsync(cypherQuery);
-                    var records = await result.ToListAsync();
-
-                    return records.Select(record => new Products
-                    {
-                        MaSP = record["p"].As<INode>().Properties.ContainsKey("MaSP") ? record["p"].As<INode>().Properties["MaSP"].As<string>() : "",
-                        TenSP = record["p"].As<INode>().Properties.ContainsKey("TenSP") ? record["p"].As<INode>().Properties["TenSP"].As<string>() : "",
-                        DonVi = record["p"].As<INode>().Properties.ContainsKey("DonVi") ? record["p"].As<INode>().Properties["DonVi"].As<string>() : "",
-                        GiaBan = record["p"].As<INode>().Properties.ContainsKey("GiaBan") ? record["p"].As<INode>().Properties["GiaBan"].As<double>() : 0,
-                        MoTa = record["p"].As<INode>().Properties.ContainsKey("MoTa") ? record["p"].As<INode>().Properties["MoTa"].As<string>() : "",
-                        HinhAnhURL = record["p"].As<INode>().Properties.ContainsKey("HinhAnhURL") ? record["p"].As<INode>().Properties["HinhAnhURL"].As<string>() : "",
-                        MaDM = record["d"].As<INode>().Properties.ContainsKey("MaDM") ? record["d"].As<INode>().Properties["MaDM"].As<string>() : ""
-                    }).ToList();
-                });
-
-                return products;
+                return await action(session);
             }
             finally
             {
@@ -52,40 +32,116 @@ namespace organic_store.Services
             }
         }
 
-        // Tìm kiếm sản phẩm
-        public async Task<List<Products>> SearchProductsAsync(string keyword)
+        // Helper: Ánh xạ Record từ Cypher sang Model Products
+        private Products MapRecordToProduct(IRecord record)
         {
-            var list = new List<Products>();
+            var p = record["p"].As<INode>();
+            var d = record["d"].As<INode>();
+            // Node CuaHang có thể không tồn tại nếu truy vấn toàn bộ sản phẩm
+            var ch = record.Keys.Contains("ch") ? record["ch"].As<INode>() : null;
+
+            // Quan hệ CUNG_CAP (chứa SoTon) có thể không tồn tại
+            var soTon = record.Keys.Contains("r")
+                        && record["r"].As<IRelationship>().Properties.ContainsKey("SoTon")
+                        ? record["r"].As<IRelationship>().Properties["SoTon"].As<long>()
+                        : 0;
+
+            // Tên cửa hàng để hiển thị
+            var tenCH = ch?.Properties.ContainsKey("TenCH") == true ? ch.Properties["TenCH"].As<string>() : "Tất cả";
+
+
+            return new Products
+            {
+                MaSP = p.Properties.ContainsKey("MaSP") ? p.Properties["MaSP"].As<string>() : "",
+                TenSP = p.Properties.ContainsKey("TenSP") ? p.Properties["TenSP"].As<string>() : "",
+                DonVi = p.Properties.ContainsKey("DonVi") ? p.Properties["DonVi"].As<string>() : "",
+                GiaBan = p.Properties.ContainsKey("GiaBan") ? Convert.ToDouble(p.Properties["GiaBan"]) : 0,
+                MoTa = p.Properties.ContainsKey("MoTa") ? p.Properties["MoTa"].As<string>() : "",
+                HinhAnhURL = p.Properties.ContainsKey("HinhAnhURL") ? p.Properties["HinhAnhURL"].As<string>() : "",
+                MaDM = d.Properties.ContainsKey("MaDM") ? d.Properties["MaDM"].As<string>() : "",
+
+                // Thuộc tính mới
+                SoTon = soTon,
+                TenCH = tenCH
+            };
+        }
+
+
+        // PHƯƠNG THỨC MỚI: Lấy danh sách Cửa hàng
+        public async Task<List<CuaHang>> GetAllStoresAsync()
+        {
             var query = @"
-                MATCH (p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)
-                WHERE toLower(p.TenSP) CONTAINS toLower($kw)
-                RETURN p, d
+                MATCH (ch:CuaHang)
+                RETURN ch
+                ORDER BY ch.TenCH";
+
+            return await ExecuteReadAsync(async session =>
+            {
+                var result = await session.RunAsync(query);
+                return await result.ToListAsync(record =>
+                {
+                    var chNode = record["ch"].As<INode>();
+                    return new CuaHang
+                    {
+                        MaCH = chNode.Properties["MaCH"].As<string>(),
+                        TenCH = chNode.Properties["TenCH"].As<string>(),
+                        DiaChiCuThe = chNode.Properties["DiaChiCuThe"].As<string>(),
+                        SoDienThoai = chNode.Properties["SoDienThoai"].As<string>()
+                    };
+                });
+            });
+        }
+
+        // CẬP NHẬT: Lấy sản phẩm theo MaCH
+        public async Task<List<Products>> GetAllProductsAsync(string maCH = null)
+        {
+            // Xây dựng câu lệnh Cypher dựa trên MaCH
+            var matchClause = maCH == "ALL" || string.IsNullOrEmpty(maCH)
+                ? "(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)"
+                : "(ch:CuaHang {MaCH: $maCH})-[r:CUNG_CAP]->(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)";
+
+            var returnClause = maCH == "ALL" || string.IsNullOrEmpty(maCH)
+                ? "RETURN p, d"
+                : "RETURN p, d, r, ch";
+
+            var cypherQuery = $@"
+                MATCH {matchClause}
+                {returnClause}
             ";
 
-            using (var session = _driver.AsyncSession(config => config.WithDatabase("organic-store")))
+            return await ExecuteReadAsync(async tx =>
             {
-                var result = await session.RunAsync(query, new { kw = keyword ?? "" });
+                var result = await tx.RunAsync(cypherQuery, new { maCH });
                 var records = await result.ToListAsync();
-
-                foreach (var record in records)
-                {
-                    var p = record["p"].As<INode>();
-                    var d = record["d"].As<INode>();
-
-                    list.Add(new Products
-                    {
-                        MaSP = p.Properties.ContainsKey("MaSP") ? p.Properties["MaSP"].As<string>() : "",
-                        TenSP = p.Properties.ContainsKey("TenSP") ? p.Properties["TenSP"].As<string>() : "",
-                        DonVi = p.Properties.ContainsKey("DonVi") ? p.Properties["DonVi"].As<string>() : "",
-                        GiaBan = p.Properties.ContainsKey("GiaBan") ? Convert.ToDouble(p.Properties["GiaBan"]) : 0,
-                        MoTa = p.Properties.ContainsKey("MoTa") ? p.Properties["MoTa"].As<string>() : "",
-                        HinhAnhURL = p.Properties.ContainsKey("HinhAnhURL") ? p.Properties["HinhAnhURL"].As<string>() : "",
-                        MaDM = d.Properties.ContainsKey("MaDM") ? d.Properties["MaDM"].As<string>() : ""
-                    });
-                }
-            }
-
-            return list;
+                return records.Select(MapRecordToProduct).ToList();
+            });
         }
+
+        // CẬP NHẬT: Tìm kiếm sản phẩm theo keyword và MaCH
+        public async Task<List<Products>> SearchProductsAsync(string keyword, string maCH = null)
+        {
+            var matchClause = maCH == "ALL" || string.IsNullOrEmpty(maCH)
+                ? "(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)"
+                : "(ch:CuaHang {MaCH: $maCH})-[r:CUNG_CAP]->(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)";
+
+            var returnClause = maCH == "ALL" || string.IsNullOrEmpty(maCH)
+                ? "RETURN p, d"
+                : "RETURN p, d, r, ch";
+
+            var query = $@"
+                MATCH {matchClause}
+                WHERE toLower(p.TenSP) CONTAINS toLower($kw)
+                {returnClause}
+            ";
+
+            return await ExecuteReadAsync(async session =>
+            {
+                var result = await session.RunAsync(query, new { kw = keyword ?? "", maCH });
+                var records = await result.ToListAsync();
+                return records.Select(MapRecordToProduct).ToList();
+            });
+        }
+
+        public void Dispose() => _driver?.Dispose();
     }
 }

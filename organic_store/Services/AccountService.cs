@@ -20,6 +20,8 @@ namespace organic_store.Services
 
         public async Task<bool> RegisterKhachHangAsync(KhachHang kh)
         {
+            kh.MaKH = "KH" + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
+
             var props = new Dictionary<string, object>
             {
                 ["MaKH"] = kh.MaKH,
@@ -70,6 +72,7 @@ namespace organic_store.Services
 
         public async Task<TaiKhoan> LoginAsync(string tenDangNhap, string matKhau)
         {
+            // Mật khẩu được so sánh trực tiếp trong Cypher
             var query = @"
                 MATCH (u)
                 WHERE (u:KhachHang OR u:NguoiQuanTri)
@@ -108,25 +111,35 @@ namespace organic_store.Services
         public async Task<(bool Exists, string ErrorMessage)> CheckDuplicateAsync(string tenDangNhap, string email, string soDienThoai)
         {
             var query = @"
-        MATCH (u)
-        WHERE (u:KhachHang OR u:NguoiQuanTri)
-          AND (u.TenDangNhap = $tenDangNhap OR u.Email = $email OR u.SoDienThoai = $soDienThoai)
-        RETURN u.TenDangNhap, u.Email, u.SoDienThoai LIMIT 1";
+                MATCH (u)
+                WHERE (u:KhachHang OR u:NguoiQuanTri)
+                  AND (u.TenDangNhap = $tenDangNhap 
+                    OR u.Email = $email 
+                    OR (u:KhachHang AND u.SoDienThoai = $soDienThoai)
+                  )
+                RETURN u.TenDangNhap, u.Email, u.SoDienThoai LIMIT 1";
 
-            var node = await ExecuteReadAsync(async session =>
+            var record = await ExecuteReadAsync(async session =>
             {
                 var result = await session.RunAsync(query, new { tenDangNhap, email, soDienThoai });
                 var list = await result.ToListAsync();
                 return list.Count > 0 ? list[0] : null;
             });
 
-            if (node != null)
+            if (record != null)
             {
-                if (node["TenDangNhap"].As<string>() == tenDangNhap)
+                // Sử dụng hàm TryGetValue an toàn hơn để tránh lỗi nếu key không tồn tại (như SoDienThoai trên NguoiQuanTri)
+                // Tuy nhiên, do query đã được fix, ta có thể dùng cách cũ nhưng cần lưu ý rằng kết quả trả về là properties của node u
+                string recordTenDangNhap = record["u.TenDangNhap"].As<string>();
+                string recordEmail = record["u.Email"].As<string>();
+                // Thuộc tính có thể là null nếu đó là NguoiQuanTri nhưng query đã lọc
+                string recordSoDienThoai = record["u.SoDienThoai"].As<string>();
+
+                if (recordTenDangNhap == tenDangNhap)
                     return (true, "Tên đăng nhập đã tồn tại.");
-                if (node["Email"].As<string>() == email)
+                if (recordEmail == email)
                     return (true, "Email đã tồn tại.");
-                if (node["SoDienThoai"].As<string>() == soDienThoai)
+                if (recordSoDienThoai == soDienThoai && recordSoDienThoai != null)
                     return (true, "Số điện thoại đã tồn tại.");
             }
 
@@ -136,7 +149,7 @@ namespace organic_store.Services
         #endregion
 
         #region GET ALL
-
+        // ... (Không thay đổi)
         public async Task<List<KhachHang>> GetAllKhachHangAsync()
         {
             return await GetAllByLabelAsync("KhachHang", record => new KhachHang
@@ -179,7 +192,7 @@ namespace organic_store.Services
         #endregion
 
         #region HELPERS
-
+        // ... (Không thay đổi)
         private TaiKhoan MapNodeToTaiKhoan(INode node)
         {
             string GetString(string key) => node.Properties.ContainsKey(key) ? node[key].As<string>() : null;

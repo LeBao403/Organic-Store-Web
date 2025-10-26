@@ -1,4 +1,6 @@
-﻿using System;
+﻿// organic_store.Controllers/HomeController.cs
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,10 +15,18 @@ namespace organic_store.Controllers
     {
         private readonly HomeService _homeService = new HomeService();
 
-        public async Task<ActionResult> Index(int page = 1)
+        // CẬP NHẬT: Nhận thêm tham số MaCH (mã cửa hàng)
+        public async Task<ActionResult> Index(string maCH = "ALL", int page = 1)
         {
             int pageSize = 9;
-            var allProducts = await _homeService.GetAllProductsAsync();
+
+            // Lấy danh sách cửa hàng để hiển thị Dropdown
+            var stores = await _homeService.GetAllStoresAsync();
+            ViewBag.Stores = stores;
+            ViewBag.SelectedStore = maCH; // Gán giá trị đang được chọn
+
+            // Lấy sản phẩm theo maCH
+            var allProducts = await _homeService.GetAllProductsAsync(maCH);
 
             var paged = allProducts
                 .Skip((page - 1) * pageSize)
@@ -27,14 +37,17 @@ namespace organic_store.Controllers
             ViewBag.TotalCount = allProducts.Count;
             ViewBag.PageSize = pageSize;
 
+            ViewBag.CurrentMaCH = maCH;
+
             return View(paged);
         }
 
         // Tìm kiếm (AJAX Partial)
-        public async Task<ActionResult> Search(string q)
+        // CẬP NHẬT: Nhận thêm tham số MaCH
+        public async Task<ActionResult> Search(string q, string maCH = "ALL")
         {
             string keyword = q?.Trim() ?? "";
-            var result = await _homeService.SearchProductsAsync(keyword);
+            var result = await _homeService.SearchProductsAsync(keyword, maCH);
             return PartialView("_ProductPartial", result);
         }
 

@@ -1,8 +1,9 @@
 ﻿@model organic_store.Models.KhachHang
-
+@using organic_store.Models
 @{
     ViewBag.Title = "Profile";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    // Đã loại bỏ ViewBag.HoaDonList
 }
 
 <link rel="stylesheet" href="~/assets/css/_Layout.css">
@@ -10,7 +11,6 @@
 <link rel="stylesheet" href="~/assets/css/Profile.css">
 
 <div class="profile-container container">
-    <!-- Profile Header -->
     <div class="profile-header">
         <div class="d-flex align-items-center">
             <img src="https://ui-avatars.com/api/?name=@Model.HoTen.Replace(" ", "+")&size=120&background=2e7d32&color=fff"
@@ -38,91 +38,97 @@
         </div>
     </div>
 
-    <!-- Profile Content -->
     <div class="profile-content">
-        <!-- Sidebar Menu -->
         <div class="profile-sidebar">
             <ul class="sidebar-menu">
-                <li><a href="#" class="active"><i class="fas fa-user"></i><span>Thông tin cá nhân</span></a></li>
-                <li><a href="#"><i class="fas fa-shopping-bag"></i><span>Đơn hàng của tôi</span></a></li>
-                <li><a href="#"><i class="fas fa-heart"></i><span>Sản phẩm yêu thích</span></a></li>
-                <li><a href="#"><i class="fas fa-map-marker-alt"></i><span>Địa chỉ giao hàng</span></a></li>
-                <li><a href="#"><i class="fas fa-lock"></i><span>Đổi mật khẩu</span></a></li>
-                <li><a href="#"><i class="fas fa-bell"></i><span>Thông báo</span></a></li>
-                <li><a href="#" style="color: #f44336;"><i class="fas fa-sign-out-alt" style="color: #f44336;"></i><span>Đăng xuất</span></a></li>
+                <li><a href="javascript:void(0)" class="menu-item active" data-target="info"><i class="fas fa-user"></i><span>Thông tin cá nhân</span></a></li>
+                <li><a href="javascript:void(0)" class="menu-item" data-target="orders"><i class="fas fa-shopping-bag"></i><span>Đơn hàng của tôi</span></a></li>
+                <li><a href="javascript:void(0)" class="menu-item" data-target="favorites"><i class="fas fa-heart"></i><span>Sản phẩm yêu thích</span></a></li>
+                <li><a href="javascript:void(0)" class="menu-item" data-target="addresses"><i class="fas fa-map-marker-alt"></i><span>Địa chỉ giao hàng</span></a></li>
+                <li><a href="javascript:void(0)" class="menu-item" data-target="password"><i class="fas fa-lock"></i><span>Đổi mật khẩu</span></a></li>
+                <li><a href="javascript:void(0)" class="menu-item" data-target="notifications"><i class="fas fa-bell"></i><span>Thông báo</span></a></li>
+                <li><a href="@Url.Action("Logout", "Account")" style="color: #f44336;"><i class="fas fa-sign-out-alt" style="color: #f44336;"></i><span>Đăng xuất</span></a></li>
             </ul>
         </div>
 
-        <!-- Main Content -->
         <div class="profile-main">
-            <h2 class="section-title">Thông Tin Cá Nhân</h2>
 
-            <!-- Info Card -->
-            <div class="info-card">
-                <div class="info-row"><span class="info-label">Họ và tên:</span><span class="info-value">@Model.HoTen</span></div>
-                <div class="info-row"><span class="info-label">Số điện thoại:</span><span class="info-value">@Model.SoDienThoai</span></div>
-                <div class="info-row"><span class="info-label">Email:</span><span class="info-value">@Model.Email</span></div>
-                <div class="info-row"><span class="info-label">Ngày sinh:</span><span class="info-value">@Model.NgaySinh.ToString("dd/MM/yyyy")</span></div>
-                <div class="info-row"><span class="info-label">Giới tính:</span><span class="info-value">Nam</span></div> <!-- cứng -->
-                <div class="info-row"><span class="info-label">Địa chỉ:</span><span class="info-value">@Model.DiaChiCuThe</span></div>
+            @* TAB 1: THÔNG TIN CÁ NHÂN (Tải sẵn và active mặc định) *@
+            <div class="tab-content" id="info">
+                @Html.Partial("_PersonalInfoPartial", Model)
             </div>
 
-            <!-- Edit Form -->
-            <form asp-action="UpdateProfile" method="post">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">Họ và tên</label>
-                            <input type="text" class="form-control" name="HoTen" value="@Model.HoTen">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">Số điện thoại</label>
-                            <input type="tel" class="form-control" name="SoDienThoai" value="@Model.SoDienThoai">
-                        </div>
-                    </div>
-                </div>
+            @* TAB 2: ĐƠN HÀNG CỦA TÔI (Sử dụng div rỗng để tải bằng AJAX) *@
+            <div class="tab-content" id="orders" data-loaded="false" data-url="@Url.Action("GetOrderListPartial", "KhachHang")">
+                <div class="text-center p-5"><i class="fas fa-spinner fa-spin me-2"></i> Đang tải đơn hàng...</div>
+            </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="Email" value="@Model.Email">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">Ngày sinh</label>
-                            <input type="date" class="form-control" name="NgaySinh" value="@Model.NgaySinh.ToString("yyyy-MM-dd")">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">Giới tính</label>
-                            <select class="form-control" name="GioiTinh">
-                                <option selected>Nam</option> <!-- cứng -->
-                                <option>Nữ</option>
-                                <option>Khác</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">Địa chỉ</label>
-                            <input type="text" class="form-control" name="DiaChiCuThe" value="@Model.DiaChiCuThe">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-end">
-                    <button type="reset" class="btn btn-cancel">Hủy</button>
-                    <button type="submit" class="btn btn-save"><i class="fas fa-save me-2"></i>Lưu thay đổi</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            // Hàm chuyển đổi tab (chỉ xử lý CSS/JS)
+            function switchTab(targetId) {
+                // Xóa trạng thái active cũ trên Sidebar và Nội dung
+                $('.menu-item').removeClass('active');
+                $('.tab-content').removeClass('active');
+
+                // Gán active mới
+                const $targetMenuItem = $(`.menu-item[data-target="${targetId}"]`);
+                const $targetTab = $('#' + targetId);
+
+                $targetMenuItem.addClass('active');
+                $targetTab.addClass('active');
+            }
+
+            // Logic xử lý chuyển Tab
+            $('.menu-item').click(function (e) {
+                e.preventDefault();
+
+                const targetId = $(this).data('target');
+                const $targetTab = $('#' + targetId);
+
+                // Chỉ xử lý các tab có data-target (bỏ qua link Đăng xuất)
+                if (targetId) {
+
+                    // 1. Chuyển đổi trạng thái hiển thị (CSS)
+                    switchTab(targetId);
+
+                    // 2. LOGIC TẢI AJAX (Lazy Loading)
+                    const isLoaded = $targetTab.data('loaded') === 'true'; // Chuyển sang boolean
+                    const url = $targetTab.data('url');
+
+                    // Nếu chưa tải VÀ có URL để tải
+                    if (!isLoaded && url) {
+
+                        $targetTab.data('loaded', 'true'); // Đánh dấu là đã tải/đang tải
+                        $targetTab.html('<div class="text-center p-5"><i class="fas fa-spinner fa-spin me-2"></i> Đang tải dữ liệu...</div>'); // Hiển thị spinner
+
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                            success: function (result) {
+                                $targetTab.html(result); // Đổ nội dung Partial View vào tab
+                            },
+                            error: function () {
+                                $targetTab.html('<div class="alert alert-danger">Lỗi khi tải dữ liệu. Vui lòng thử lại.</div>');
+                                $targetTab.data('loaded', 'false'); // Cho phép tải lại nếu lỗi
+                            }
+                        });
+                    }
+                }
+            });
+
+            // FIX: Kích hoạt nội dung tab mặc định khi tải trang
+            const defaultTarget = $('.menu-item.active').data('target');
+            if (defaultTarget) {
+                switchTab(defaultTarget);
+            }
+        });
+    </script>
+}
