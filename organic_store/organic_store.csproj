@@ -234,6 +234,7 @@
     <Content Include="Views\KhachHang\Profile.cshtml" />
     <Content Include="Views\KhachHang\_OrderListPartial.cshtml" />
     <Content Include="Views\KhachHang\_PersonalInfoPartial.cshtml" />
+    <Content Include="Views\Home\AboutUs.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

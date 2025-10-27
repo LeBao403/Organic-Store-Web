@@ -10,11 +10,14 @@ else
 {
     foreach (var hd in Model)
     {
+        // Chọn class CSS dựa trên trạng thái thanh toán
+        var badgeClass = hd.TrangThaiThanhToan == "Đã thanh toán" ? "bg-success" : "bg-warning text-dark";
+
         <div class="order-card mb-3 p-3 border rounded shadow-sm">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Mã Đơn: <span class="text-primary">@hd.MaHD</span></h5>
-                <span class="badge @(hd.TrangThaiThanhToan == "Đã thanh toán" ? "bg-success" : "bg-warning text-dark")">
-                    @hd.TrangThaiThanhToan
+                <span class="badge @badgeClass">
+                    @hd.TrangThaiThanhToan @* HIỂN THỊ TEXT TRỰC TIẾP TỪ CSDL *@
                 </span>
             </div>
             <hr />

@@ -1,0 +1,190 @@
+﻿@{
+    ViewBag.Title = "Về Chúng Tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* CSS Riêng cho trang Giới Thiệu */
+    .about-section {
+        padding: 80px 0;
+        background-color: #ffffff;
+    }
+
+    .hero-about {
+        background: linear-gradient(rgba(46, 125, 50, 0.85), rgba(46, 125, 50, 0.85)), url('~/assets/Images/bg_about_us.jpg');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        text-align: center;
+        padding: 100px 20px;
+        border-radius: 12px;
+        margin-bottom: 50px;
+    }
+
+        .hero-about h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .hero-about p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+    .value-prop-card {
+        text-align: center;
+        padding: 30px 20px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        height: 100%;
+        border-top: 5px solid #a5d6a7;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+        .value-prop-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.15);
+        }
+
+        .value-prop-card i {
+            font-size: 3rem;
+            color: #4caf50;
+            margin-bottom: 15px;
+        }
+
+    .story-img-container {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        transform: scale(1.0);
+        transition: transform 0.5s ease;
+    }
+
+        .story-img-container:hover {
+            transform: scale(1.02);
+        }
+
+    .story-img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .highlight-text {
+        color: #2e7d32;
+        font-weight: 600;
+    }
+
+    .cta-banner {
+        background-color: #f4fdf5;
+        border: 1px solid #e0e0e0;
+        padding: 40px;
+        border-radius: 12px;
+        text-align: center;
+        margin-top: 50px;
+    }
+
+        .cta-banner h3 {
+            color: #2e7d32;
+            font-weight: 700;
+        }
+</style>
+
+<section class="about-section">
+    <div class="container">
+
+        <div class="hero-about">
+            <h1>Chúng Tôi Không Chỉ Bán Hữu Cơ, Chúng Tôi Bán Sức Khỏe!</h1>
+            <p>
+                Organic Shop ra đời với sứ mệnh kết nối những người tiêu dùng yêu sức khỏe với nguồn nông sản sạch, an toàn và minh bạch nhất từ các trang trại địa phương. Chúng tôi cam kết mang đến thực phẩm đạt chuẩn Organic cao nhất, bảo vệ cả con người và hành tinh.
+            </p>
+        </div>
+
+        <h2 class="text-center mb-5" style="color: #4caf50; font-weight: 600;">🌱 Giá Trị Cốt Lõi Của Chúng Tôi</h2>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="value-prop-card">
+                    <i class="fas fa-leaf"></i>
+                    <h4>Sản Phẩm Hữu Cơ Thật</h4>
+                    <p>Mọi sản phẩm đều được kiểm định nghiêm ngặt, không chứa hóa chất độc hại, thuốc trừ sâu hay chất biến đổi gen (GMO).</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-prop-card">
+                    <i class="fas fa-handshake"></i>
+                    <h4>Minh Bạch Nguồn Gốc</h4>
+                    <p>Chúng tôi cung cấp thông tin rõ ràng về nguồn gốc, quy trình trồng trọt và chứng nhận của từng nông trại đối tác.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-prop-card">
+                    <i class="fas fa-heart"></i>
+                    <h4>Trách Nhiệm Cộng Đồng</h4>
+                    <p>Chúng tôi hỗ trợ nông dân địa phương, thúc đẩy canh tác bền vững và giảm thiểu dấu chân carbon.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row align-items-center mb-5 pt-5">
+            <div class="col-md-6 order-md-2">
+                <div class="story-img-container">
+                </div>
+            </div>
+            <div class="col-md-6 order-md-1">
+                <h2 style="color: #2e7d32; font-weight: 700;">Hành Trình Từ Trang Trại Đến Bàn Ăn</h2>
+                <p style="font-size: 1.1rem; line-height: 1.7;">
+                    Câu chuyện của Organic Shop bắt đầu từ một chuyến đi đến Đà Lạt, nơi chúng tôi nhận ra sự khác biệt lớn giữa thực phẩm trồng trọt đại trà và nông sản được chăm sóc tỉ mỉ theo phương pháp hữu cơ.
+                </p>
+                <p style="line-height: 1.7;">
+                    Chúng tôi tin rằng thực phẩm tốt phải là thực phẩm <span class="highlight-text">tự nhiên</span>, <span class="highlight-text">đầy đủ dinh dưỡng</span>, và <span class="highlight-text">không gây hại</span> cho môi trường. Từ rau củ tươi ngon, trái cây mọng nước, đến các loại gia vị và ngũ cốc, mỗi sản phẩm đều được thu hoạch và vận chuyển trong ngày để đảm bảo độ tươi ngon tối đa.
+                </p>
+            </div>
+        </div>
+
+        <hr class="my-5" style="border-top: 1px solid #a5d6a7;">
+
+        <h2 class="text-center mb-4" style="color: #4caf50; font-weight: 600;">Các Lĩnh Vực Cung Ứng</h2>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-3">
+                <div class="value-prop-card" style="border-top-color: #2e7d32;">
+                    <i class="fas fa-shopping-basket" style="color: #2e7d32;"></i>
+                    <h5>Rau Củ & Trái Cây Tươi</h5>
+                    <p class="small text-muted">Trực tiếp từ các vườn đạt chuẩn VietGAP & USDA Organic.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="value-prop-card" style="border-top-color: #2e7d32;">
+                    <i class="fas fa-wheat-alt" style="color: #2e7d32;"></i>
+                    <h5>Ngũ Cốc & Hạt Hữu Cơ</h5>
+                    <p class="small text-muted">Đảm bảo nguồn cung cấp vitamin và khoáng chất tự nhiên.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="value-prop-card" style="border-top-color: #2e7d32;">
+                    <i class="fas fa-mortar-pestle" style="color: #2e7d32;"></i>
+                    <h5>Gia Vị & Thực Phẩm Chế Biến</h5>
+                    <p class="small text-muted">Các sản phẩm chế biến không chất bảo quản, giữ trọn hương vị thiên nhiên.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-banner">
+            <h3>Hãy Bắt Đầu Lối Sống Khỏe Mạnh Cùng Organic Shop!</h3>
+            <p class="mb-4">Chúng tôi luôn sẵn sàng hỗ trợ bạn lựa chọn những thực phẩm tốt nhất cho gia đình.</p>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-lg" style="background-color: #4caf50; color: white; border-radius: 50px; padding: 10px 30px;">
+                <i class="fas fa-shopping-cart me-2"></i> Mua sắm ngay
+            </a>
+            <a href="@Url.Action("Contact", "Home")" class="btn btn-lg btn-outline-success ms-3" style="border-radius: 50px; padding: 10px 30px;">
+                Liên hệ tư vấn
+            </a>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+}

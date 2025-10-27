@@ -4,9 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.Services.Description;
+using organic_store.Models;
 using organic_store.Services;
 
 namespace organic_store.Controllers
@@ -15,19 +14,27 @@ namespace organic_store.Controllers
     {
         private readonly HomeService _homeService = new HomeService();
 
-        // CẬP NHẬT: Nhận thêm tham số MaCH (mã cửa hàng)
-        public async Task<ActionResult> Index(string maCH = "ALL", int page = 1)
+        // FIX: Nhận tham số MaCH VÀ MaDM để lọc sản phẩm
+        public async Task<ActionResult> Index(string maCH = "ALL", string maDM = "ALL", int page = 1)
         {
             int pageSize = 9;
 
-            // Lấy danh sách cửa hàng để hiển thị Dropdown
+            // 1. Lấy danh sách cần thiết cho View và Layout
             var stores = await _homeService.GetAllStoresAsync();
+            var categories = await _homeService.GetAllCategoriesAsync(); // Lấy danh mục
+
+            // 2. Thiết lập ViewBag cho Layout và View
             ViewBag.Stores = stores;
-            ViewBag.SelectedStore = maCH; // Gán giá trị đang được chọn
+            ViewBag.Categories = categories; // Truyền danh mục lên Layout
 
-            // Lấy sản phẩm theo maCH
-            var allProducts = await _homeService.GetAllProductsAsync(maCH);
+            ViewBag.SelectedStore = maCH;    // Mã CH đang chọn
+            ViewBag.CurrentMaCH = maCH;      // Dùng cho phân trang
+            ViewBag.SelectedMaDM = maDM;     // Mã DM đang chọn (cần cho cả Navbar và Home View)
 
+            // 3. Lấy sản phẩm đã lọc
+            var allProducts = await _homeService.GetAllProductsAsync(maCH, maDM);
+
+            // 4. Phân trang
             var paged = allProducts
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -37,19 +44,21 @@ namespace organic_store.Controllers
             ViewBag.TotalCount = allProducts.Count;
             ViewBag.PageSize = pageSize;
 
-            ViewBag.CurrentMaCH = maCH;
-
             return View(paged);
         }
 
         // Tìm kiếm (AJAX Partial)
-        // CẬP NHẬT: Nhận thêm tham số MaCH
-        public async Task<ActionResult> Search(string q, string maCH = "ALL")
+        // FIX: Nhận tham số MaCH VÀ MaDM để lọc
+        public async Task<ActionResult> Search(string q, string maCH = "ALL", string maDM = "ALL")
         {
             string keyword = q?.Trim() ?? "";
-            var result = await _homeService.SearchProductsAsync(keyword, maCH);
+            var result = await _homeService.SearchProductsAsync(keyword, maCH, maDM);
             return PartialView("_ProductPartial", result);
         }
 
+        public ActionResult AboutUs()
+        {
+            return View();
+        }
     }
 }

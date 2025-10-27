@@ -1,8 +1,11 @@
 ﻿@using organic_store.Models
+
 @{
-    string currentMaCH = ViewBag.CurrentMaCH ?? "ALL";
+    string currentMaDM = ViewBag.SelectedMaDM ?? "ALL";
+    string currentMaCH = ViewBag.SelectedStore ?? "ALL";
 }
 
+@* Gọi Partial View Layout Phân trang và truyền PagerViewModel *@
 @Html.Partial("~/Views/Shared/_Layout_Pagination.cshtml", new PagerViewModel
 {
     Page = ViewBag.Page,
@@ -10,6 +13,5 @@
     TotalCount = ViewBag.TotalCount,
     DisplayPages = 5,
     ActionName = "Index",
-
-    RouteValues = new { maCH = currentMaCH }
+    RouteValues = new { maCH = currentMaCH, maDM = currentMaDM }
 })

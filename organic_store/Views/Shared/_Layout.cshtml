@@ -12,10 +12,15 @@
 </head>
 <body>
 
-    @* Lấy thông tin người dùng Khách Hàng từ Session *@
+    @* Lấy thông tin cần thiết từ Session và Request *@
     @{
-        // Ép kiểu trực tiếp sang KhachHang
         var currentKhachHang = Session["CurrentUser"] as organic_store.Models.KhachHang;
+
+        // Lấy danh mục từ ViewBag (Giả định Controller đã thiết lập)
+        var categories = ViewBag.Categories as List<organic_store.Models.DanhMuc> ?? new List<organic_store.Models.DanhMuc>();
+
+        // Lấy MaCH hiện tại từ Request.QueryString (Nếu đang ở trang Index)
+        string currentMaCH = Request.QueryString["maCH"] ?? "ALL";
     }
 
     <nav class="navbar navbar-expand-lg">
@@ -24,22 +29,37 @@
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Giới thiệu</a>
+                        <a class="nav-link" href="@Url.Action("AboutUs", "Home")">Giới thiệu</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Rau củ tươi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Trái cây</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Gia Vị Thiên Nhiên</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Ngũ Cốc Hữu Cơ</a>
-                    </li>
+
+                    @* TẠO LIÊN KẾT DANH MỤC ĐỘNG *@
+                    @* Sử dụng mã DM cố định nếu ViewBag trống (để đảm bảo menu luôn hiện) *@
+
+                    @if (!categories.Any())
+                    {
+                        // Dùng danh mục tĩnh (ví dụ khi đang ở trang khác Home/Index)
+                        <li class="nav-item"><a class="nav-link category-link" data-madm="DM01" href="@Url.Action("Index", "Home", new { maDM = "DM01", maCH = currentMaCH })">Rau củ tươi</a></li>
+                        <li class="nav-item"><a class="nav-link category-link" data-madm="DM02" href="@Url.Action("Index", "Home", new { maDM = "DM02", maCH = currentMaCH })">Trái cây</a></li>
+                        <li class="nav-item"><a class="nav-link category-link" data-madm="DM04" href="@Url.Action("Index", "Home", new { maDM = "DM04", maCH = currentMaCH })">Gia Vị Thiên Nhiên</a></li>
+                        <li class="nav-item"><a class="nav-link category-link" data-madm="DM03" href="@Url.Action("Index", "Home", new { maDM = "DM03", maCH = currentMaCH })">Ngũ Cốc Hữu Cơ</a></li>
+                    }
+                    else
+                    {
+                        // Dùng danh mục động từ ViewBag
+                        foreach (var category in categories)
+                        {
+                            <li class="nav-item" data-madm="@category.MaDM">
+                                <a class="nav-link category-link"
+                                   href="@Url.Action("Index", "Home", new { maDM = category.MaDM, maCH = currentMaCH })">
+                                    @category.TenDM
+                                </a>
+                            </li>
+                        }
+                    }
+
                 </ul>
             </div>
+
             <div class="d-flex align-items-center">
 
                 <div class="search-bar me-3">
@@ -54,16 +74,17 @@
                 <div class="me-3">
                     @if (currentKhachHang != null)
                     {
-                        // Đã đăng nhập: Hiển thị "Hi, Tên"
                         <span class="text-dark">
                             <a href="@Url.Action("CheckLogin", "Account")" class="text-dark text-decoration-none" title="Trang cá nhân">
                                 <span class="fw-bold">Hi, @currentKhachHang.HoTen</span>
                             </a>
                         </span>
+                        <a href="@Url.Action("Logout", "Account")" class="ms-2 text-danger small" title="Đăng xuất">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
                     }
                     else
                     {
-                        // Chưa đăng nhập: Hiển thị icon user
                         <a href="@Url.Action("CheckLogin", "Account")" class="text-dark" title="Đăng nhập / Đăng ký">
                             <i class="fas fa-user"></i>
                         </a>
@@ -132,6 +153,43 @@
                 navbar.style.transform = 'translateY(0)';
             }
             lastScroll = currentScroll;
+        });
+
+        // =======================================================
+        // CẬP NHẬT LIVE SEARCH URL (Sử dụng jQuery)
+        // =======================================================
+        $(document).ready(function () {
+
+            // Hàm lấy MaDM hiện tại từ URL (Chỉ lấy khi đang ở trang Index)
+            const getMaDMFromUrl = () => {
+                // Kiểm tra nếu đang ở trang chủ (Index)
+                if (window.location.pathname.toLowerCase().includes('/home/index') ||
+                    window.location.pathname === '/')
+                {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    return urlParams.get('maDM') || 'ALL';
+                }
+                return 'ALL';
+            };
+
+            // Hàm cập nhật data-url cho Live Search (Áp dụng cho mọi trang)
+            const updateSearchUrl = () => {
+                // Lấy MaCH từ dropdown Cửa hàng (chỉ tồn tại trên trang Index)
+                const maCH = $('#storeSelect').val() || '@currentMaCH';
+
+                // Lấy MaDM hiện tại từ URL
+                const maDM = getMaDMFromUrl();
+
+                // Gán URL cho Live Search, bao gồm cả MaCH và MaDM
+                const searchUrl = '@Url.Action("Search", "Home")' + '?maCH=' + maCH + '&maDM=' + maDM;
+                $('.live-search').attr('data-url', searchUrl);
+            };
+
+            // Chạy khi load
+            updateSearchUrl();
+
+            // Nếu dropdown cửa hàng tồn tại, cập nhật URL khi thay đổi
+            $('#storeSelect').change(updateSearchUrl);
         });
     </script>
 </body>
