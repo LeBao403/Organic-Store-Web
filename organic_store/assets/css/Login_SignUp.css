@@ -24,7 +24,7 @@ body {
     overflow: hidden;
     width: 100%;
     max-width: 420px;
-/*    backdrop-filter: blur(10px);*/
+    /* backdrop-filter: blur(10px);*/
 }
 
 .form-wrapper {
@@ -126,13 +126,13 @@ input {
 }
 
 .success-message {
+    /* Được dùng ở đầu form khi đăng ký thành công */
     background: #d4edda;
     color: #155724;
     padding: 12px;
     border-radius: 10px;
     margin-bottom: 20px;
     border: 1px solid #c3e6cb;
-    display: none;
 }
 
 @keyframes slideIn {
@@ -184,11 +184,6 @@ input {
     margin-bottom: 10px;
 }
 
-.success-message {
-    color: #4CAF50;
-    margin-bottom: 10px;
-}
-
 
 .register-link {
     text-align: center;
@@ -214,7 +209,55 @@ input {
         }
 
 
+.success-box-wrapper {
+    text-align: center;
+    padding: 30px 20px;
+    border: 2px solid #4CAF50; /* Màu xanh lá nổi bật */
+    border-radius: 15px;
+    background-color: #f6fff6; /* Nền xanh nhạt */
+    margin: 20px 0 30px 0;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.15);
+    animation: fadeIn 0.5s ease-out;
+}
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
 
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
 
+.success-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    line-height: 1;
+}
 
+.success-box-wrapper h3 {
+    color: #4CAF50; /* Màu tiêu đề xanh */
+    margin-bottom: 8px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.success-message-text {
+    color: #333;
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+/* Định dạng lại nút Đăng Nhập Ngay */
+.btn-login {
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); /* Thay đổi màu nút */
+    margin-top: 20px;
+}
+
+    .btn-login:hover {
+        box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
+    }

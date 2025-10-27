@@ -21,7 +21,6 @@ namespace organic_store.Controllers
 
         public ActionResult Login() => View();
 
-        // POST: /Account/Login
         [HttpPost]
         public async Task<ActionResult> Login(string TenDangNhap, string MatKhau)
         {
@@ -36,7 +35,7 @@ namespace organic_store.Controllers
 
             if (user is KhachHang kh)
             {
-                Session["MaKH"] = kh.MaKH; // Lưu MaKH vào Session
+                Session["MaKH"] = kh.MaKH; 
                 return RedirectToAction("Index", "Home");
             }
 
@@ -44,10 +43,8 @@ namespace organic_store.Controllers
                 return RedirectToAction("Dashboard", "HomeAdmin");
         }
 
-        // GET: /Account/Register
         public ActionResult Register() => View();
 
-        // POST: /Account/Register
         [HttpPost]
         public async Task<ActionResult> Register(KhachHang model)
         {
@@ -57,7 +54,6 @@ namespace organic_store.Controllers
                 return View(model); // Lỗi xác thực sẽ được hiển thị qua ValidationMessageFor
             }
 
-            // Kiểm tra trùng lặp
             var (exists, errorMessage) = await _accountService.CheckDuplicateAsync(model.TenDangNhap, model.Email, model.SoDienThoai);
             if (exists)
             {
@@ -70,7 +66,7 @@ namespace organic_store.Controllers
             if (result)
             {
                 ViewBag.Success = "Đăng ký thành công! Bạn có thể đăng nhập ngay.";
-                return View();
+                return View(); 
             }
             else
             {
@@ -85,8 +81,6 @@ namespace organic_store.Controllers
             Session.Clear();
             return RedirectToAction("Login");
         }
-
-        // Kiểm tra đăng nhập và chuyển hướng phù hợp
         public ActionResult CheckLogin()
         {
             if (Session["MaKH"] != null)
