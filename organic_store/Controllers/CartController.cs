@@ -26,39 +26,63 @@ namespace organic_store.Controllers
         {
             var user = Session["CurrentUser"] as KhachHang;
 
-           
             if (user == null)
             {
                 return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "Cart") });
             }
-            
 
             var selectedStore = Session["SelectedStore"] as string ?? "ALL";
 
-            var stores = await _cartService.GetAllStoresAsync();
+            // Lấy thông tin cửa hàng
+            var stores = await _homeService.GetAllStoresAsync(); // Dùng _homeService vì nó đã được sửa
             ViewBag.Stores = stores;
             ViewBag.SelectedStore = selectedStore;
 
-            string storeName = selectedStore == "ALL" ? "Tất cả" : await _cartService.GetStoreNameAsync(selectedStore);
+            // Lấy tên cửa hàng
+            string storeName = stores.FirstOrDefault(ch => ch.MaCH == selectedStore)?.TenCH ?? "Tất cả";
             ViewBag.StoreName = storeName;
 
-            
-            var serviceCart = await _cartService.GetCartByCustomerAsync(user.MaKH, selectedStore); 
-            var modelCart = serviceCart.Select(item => new organic_store.Models.CartItem 
-            {
-                Product = new Products
-                {
-                    MaSP = item.MaSP,
-                    TenSP = item.TenSP,
-                    GiaBan = item.GiaBan,
-                    HinhAnhURL = item.HinhAnhURL,
-                    SoTon = 0,
-                    TenCH = storeName
-                },
-                Quantity = item.SoLuong 
-            }).ToList();
+            // Lấy dữ liệu giỏ hàng từ Service
+            var serviceCart = await _cartService.GetCartByCustomerAsync(user.MaKH, selectedStore);
 
+            // Bắt đầu ánh xạ (mapping) và cập nhật tồn kho
+            var modelCart = new List<organic_store.Models.CartItem>();
+
+            foreach (var item in serviceCart)
+            {
+                // ⭐ LẤY VÀ CẬP NHẬT TỒN KHO THỰC TẾ
+                long currentStock = 0;
+                if (selectedStore != "ALL")
+                {
+                    // Chỉ lấy tồn kho nếu đang ở cửa hàng cụ thể
+                    currentStock = await _homeService.GetStockByProductAsync(item.MaSP, selectedStore);
+                }
+
+                // Đảm bảo SoTon không âm
+                if (currentStock < 0)
+                {
+                    currentStock = 0;
+                }
+
+                modelCart.Add(new organic_store.Models.CartItem
+                {
+                    Product = new Products
+                    {
+                        MaSP = item.MaSP,
+                        TenSP = item.TenSP,
+                        GiaBan = item.GiaBan,
+                        HinhAnhURL = item.HinhAnhURL,
+                        // ⭐ SỬA LỖI: Gán SoTon bằng tồn kho thực tế đã lấy
+                        SoTon = currentStock,
+                        TenCH = storeName
+                    },
+                    Quantity = item.SoLuong
+                });
+            }
+
+            // Lọc lại các sản phẩm có số lượng > 0 (Nếu bạn muốn giữ lại logic này)
             modelCart = modelCart.Where(c => c.Quantity > 0).ToList();
+
             return View(modelCart);
         }
 

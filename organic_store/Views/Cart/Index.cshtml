@@ -29,7 +29,10 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr data-id="@item.Product.MaSP" data-price="@item.Product.GiaBan" data-stock="@item.Product.SoTon">
+                    // ⭐ SỬA LỖI 1: Đảm bảo giá trị tồn kho luôn >= 0 trước khi gán vào HTML
+                    long safeStockValue = item.Product.SoTon < 0 ? 0 : item.Product.SoTon;
+
+                    <tr data-id="@item.Product.MaSP" data-price="@item.Product.GiaBan" data-stock="@safeStockValue">
                         <td class="text-center">
                             <img src="@item.Product.HinhAnhURL" alt="@item.Product.TenSP"
                                  width="70" height="70" class="rounded shadow-sm" />
@@ -44,6 +47,16 @@
                                        style="max-width:50px;" />
                                 <button class="btn btn-outline-secondary btn-qty" data-action="increase">+</button>
                             </div>
+
+                            @if (safeStockValue == 0)
+                            {
+                                <p class="text-danger small mt-1 mb-0">Hết hàng!</p>
+                            }
+                            else if (item.Quantity >= safeStockValue)
+                            {
+                                <p class="text-warning small mt-1 mb-0">Tối đa: @safeStockValue</p>
+                            }
+
                         </td>
                         <td class="text-center text-success fw-bold item-total">
                             @String.Format("{0:N0}đ", item.Total)
@@ -88,16 +101,37 @@
             var price = parseFloat(row.data("price"));
             var productId = row.data("id");
             var stock = parseInt(row.data("stock"));
-            var storeId = "@ViewBag.SelectedStore"; 
+            var storeId = "@ViewBag.SelectedStore";
+
+            // ⭐ SỬA LỖI 2: PHÒNG THỦ JS - Đảm bảo tồn kho không âm
+            if (stock < 0) {
+                stock = 0;
+            }
 
             if (action === "increase") qty++;
             else if (action === "decrease") qty--;
 
-            if (qty < 0) qty = 0;
-            if (qty > stock) qty = stock;
+            if (qty < 1) {
+                // Cho phép qty = 0 để xóa sản phẩm khỏi giỏ hàng
+                qty = 0;
+            }
+
+            // ⭐ SỬA LỖI 3: Chỉ giới hạn nếu tồn kho > 0
+            if (stock > 0 && qty > stock) {
+                qty = stock;
+                // Hiển thị cảnh báo trực quan cho người dùng
+                alert(`⚠️ Số lượng không được vượt quá tồn kho tối đa là ${stock}!`);
+            }
+
+            // Nếu tồn kho = 0, ngăn không cho tăng số lượng
+            if (stock === 0 && qty > 0) {
+                qty = 0;
+            }
+
 
             input.val(qty);
 
+            // Bắt đầu gọi AJAX để cập nhật giỏ hàng trên Server
             $.ajax({
                 url: "/Cart/UpdateQuantity",
                 type: "POST",
@@ -118,21 +152,61 @@
                             $("#cart-count").text(data.count);
                         });
                     }
+                    else if (res.message) {
+                        // Xử lý thông báo lỗi từ server (ví dụ: "Số lượng không được vượt quá N!")
+                        alert(res.message);
+
+                        // Cập nhật lại số lượng trong ô input nếu Server báo lỗi
+                        // (Bạn sẽ cần phải thêm logic này nếu muốn)
+                        // Hiện tại, ta dựa vào việc Server tự trả về số lượng hợp lệ,
+                        // nhưng nếu Server chỉ trả về lỗi, bạn nên giữ nguyên số lượng cũ hoặc refresh trang.
+
+                    }
+                },
+                error: function (xhr) {
+                    alert("Lỗi mạng hoặc lỗi server khi cập nhật giỏ hàng!");
+                    // Nếu lỗi AJAX, ta không nên thay đổi số lượng
+                    input.val(qty === 0 ? 1 : qty);
+
                 }
             });
         });
 
+       
         function updateCartSubtotal() {
             var subtotal = 0;
+            var cartRowCount = $("#cart-table tbody tr").length; // Đếm số dòng (sản phẩm) còn lại
+
             $("#cart-table tbody tr").each(function () {
                 var qty = parseInt($(this).find(".qty-input").val()) || 0;
                 var price = parseFloat($(this).data("price"));
                 subtotal += qty * price;
             });
+
             $("#cart-subtotal").text(subtotal.toLocaleString('vi-VN') + "đ");
 
-            if ($("#cart-table tbody tr").length === 0) {
-                $(".container").html('<div class="alert alert-info text-center mt-5">Giỏ hàng của bạn tại cửa hàng này hiện đang trống.</div>');
+            // ⭐ BƯỚC SỬA LỖI QUAN TRỌNG: XỬ LÝ KHI GIỎ HÀNG TRỐNG
+            if (cartRowCount === 0) {
+                // Ẩn bảng giỏ hàng và footer tổng cộng
+                $("#cart-table").hide();
+                $(".text-end.mt-3").hide();
+
+                // Tạo một container duy nhất để hiển thị thông báo "Giỏ hàng trống"
+                var emptyCartMessage = `
+            <div id="empty-cart-alert" class="alert alert-info text-center mt-5">
+                Giỏ hàng của bạn tại cửa hàng này hiện đang trống.
+            </div>
+        `;
+
+                // 1. Kiểm tra nếu thông báo chưa tồn tại, thì thêm nó vào container chính
+                if ($("#empty-cart-alert").length === 0) {
+                    $(".container.my-5").append(emptyCartMessage);
+                }
+
+                // 2. Cập nhật tiêu đề
+                $(".container.my-5 h2").html('<i class="fas fa-shopping-cart text-success me-2"></i> Giỏ hàng của bạn');
+
+                // Lưu ý: Nếu bạn có các thông báo trống giỏ hàng khác trong View (ví dụ: ở cuối), bạn cần xóa chúng khỏi file .cshtml gốc.
             }
         }
     </script>
