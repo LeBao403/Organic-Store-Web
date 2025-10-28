@@ -1,0 +1,139 @@
+﻿@model List<organic_store.Models.CartItem>
+
+@{
+    ViewBag.Title = "Giỏ hàng";
+    var storeName = ViewBag.StoreName as string ?? "Tất cả";
+}
+
+<div class="container my-5">
+    <h2 class="mb-4">
+        <i class="fas fa-shopping-cart text-success me-2"></i> Giỏ hàng của bạn tại @storeName
+    </h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info text-center">Giỏ hàng của bạn tại cửa hàng này hiện đang trống.</div>
+    }
+    else
+    {
+        <table class="table table-bordered align-middle" id="cart-table">
+            <thead class="table-light">
+                <tr>
+                    <th class="text-center">Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th class="text-center">Đơn giá</th>
+                    <th class="text-center" style="width:160px;">Số lượng</th>
+                    <th class="text-center">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr data-id="@item.Product.MaSP" data-price="@item.Product.GiaBan" data-stock="@item.Product.SoTon">
+                        <td class="text-center">
+                            <img src="@item.Product.HinhAnhURL" alt="@item.Product.TenSP"
+                                 width="70" height="70" class="rounded shadow-sm" />
+                        </td>
+                        <td>@item.Product.TenSP</td>
+                        <td class="text-center">@String.Format("{0:N0}đ", item.Product.GiaBan)</td>
+                        <td class="text-center">
+                            <div class="input-group input-group-sm justify-content-center">
+                                <button class="btn btn-outline-secondary btn-qty" data-action="decrease">-</button>
+                                <input type="text" class="form-control text-center qty-input"
+                                       value="@item.Quantity" readonly
+                                       style="max-width:50px;" />
+                                <button class="btn btn-outline-secondary btn-qty" data-action="increase">+</button>
+                            </div>
+                        </td>
+                        <td class="text-center text-success fw-bold item-total">
+                            @String.Format("{0:N0}đ", item.Total)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-end mt-3">
+            <h5 class="fw-bold">Tổng cộng: <span id="cart-subtotal" class="text-danger">@String.Format("{0:N0}đ", Model.Sum(c => c.Total))</span></h5>
+        </div>
+
+        <div class="text-end mt-3">
+            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">← Tiếp tục mua hàng</a>
+            @if (Session["CurrentUser"] != null)
+            {
+                <a href="@Url.Action("Checkout", "Cart")" class="btn btn-primary ms-2">Thanh toán</a>
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "Account")" class="btn btn-primary ms-2">Đăng nhập để thanh toán</a>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .container.body-content {
+        margin-top: 100px;
+    }
+</style>
+
+@section scripts {
+    <script>
+        $(document).on("click", ".btn-qty", function () {
+            var btn = $(this);
+            var action = btn.data("action");
+            var row = btn.closest("tr");
+            var input = row.find(".qty-input");
+            var qty = parseInt(input.val());
+            var price = parseFloat(row.data("price"));
+            var productId = row.data("id");
+            var stock = parseInt(row.data("stock"));
+            var storeId = "@ViewBag.SelectedStore"; 
+
+            if (action === "increase") qty++;
+            else if (action === "decrease") qty--;
+
+            if (qty < 0) qty = 0;
+            if (qty > stock) qty = stock;
+
+            input.val(qty);
+
+            $.ajax({
+                url: "/Cart/UpdateQuantity",
+                type: "POST",
+                data: { maSP: productId, quantity: qty, maCH: storeId },
+                success: function (res) {
+                    if (res.success) {
+                        if (qty === 0) {
+                            row.fadeOut(300, function () {
+                                $(this).remove();
+                                updateCartSubtotal();
+                            });
+                        } else {
+                            var itemTotal = price * qty;
+                            row.find(".item-total").text(itemTotal.toLocaleString('vi-VN') + "đ");
+                            updateCartSubtotal();
+                        }
+                        $.get("/Cart/GetCartCount", function (data) {
+                            $("#cart-count").text(data.count);
+                        });
+                    }
+                }
+            });
+        });
+
+        function updateCartSubtotal() {
+            var subtotal = 0;
+            $("#cart-table tbody tr").each(function () {
+                var qty = parseInt($(this).find(".qty-input").val()) || 0;
+                var price = parseFloat($(this).data("price"));
+                subtotal += qty * price;
+            });
+            $("#cart-subtotal").text(subtotal.toLocaleString('vi-VN') + "đ");
+
+            if ($("#cart-table tbody tr").length === 0) {
+                $(".container").html('<div class="alert alert-info text-center mt-5">Giỏ hàng của bạn tại cửa hàng này hiện đang trống.</div>');
+            }
+        }
+    </script>
+}

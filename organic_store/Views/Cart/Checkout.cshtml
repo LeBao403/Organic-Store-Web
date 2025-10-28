@@ -1,0 +1,60 @@
+﻿@model List<organic_store.Models.CartItem>
+
+@{
+    ViewBag.Title = "Đặt hàng";
+}
+
+<div class="container my-5">
+    <h2 class="mb-4">Đặt hàng</h2>
+
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th class="text-center">Hình ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th class="text-center">Đơn giá</th>
+                <th class="text-center">Số lượng</th>
+                <th class="text-center">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.Cart)
+            {
+                <tr>
+                    <td class="text-center">
+                        <img src="@item.HinhAnhURL" alt="@item.TenSP" width="70" height="70" class="rounded shadow-sm" />
+                    </td>
+                    <td>@item.TenSP</td>
+                    <td class="text-center">@String.Format("{0:N0}đ", item.GiaBan)</td>
+                    <td class="text-center">@item.SoLuong</td>
+                    <td class="text-center text-success fw-bold">@String.Format("{0:N0}đ", item.ThanhTien)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="text-end mt-3">
+        <h5 class="fw-bold">Tổng thanh toán: <span class="text-danger">@String.Format("{0:N0}đ", ViewBag.ThanhTien)</span></h5>
+    </div>
+
+    <form method="post" action="@Url.Action("Checkout", "Cart")" class="mt-4">
+        <div class="form-group">
+            <label for="DiaChiGiaoHang">Địa chỉ giao hàng:</label>
+            <input type="text" class="form-control" id="DiaChiGiaoHang" name="DiaChiGiaoHang" required>
+        </div>
+        <div class="form-group mt-3">
+            <label for="GhiChu">Ghi chú:</label>
+            <textarea class="form-control" id="GhiChu" name="GhiChu" rows="3"></textarea>
+        </div>
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-primary">Đặt hàng</button>
+        </div>
+    </form>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success text-center" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}

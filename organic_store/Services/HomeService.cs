@@ -16,7 +16,7 @@ namespace organic_store.Services
             _driver = MvcApplication.Neo4jDriver;
         }
 
-        // Helper: Thực thi truy vấn đọc (Read Transaction)
+        // Helper: Thực thi truy vấn đọc
         private async Task<T> ExecuteReadAsync<T>(Func<IAsyncSession, Task<T>> action)
         {
             IAsyncSession session = null;
@@ -32,23 +32,27 @@ namespace organic_store.Services
             }
         }
 
-        // Helper: Ánh xạ Record từ Cypher sang Model Products
-        private Products MapRecordToProduct(IRecord record)
+        private Products MapRecordToProduct(IRecord record, string maCH)
         {
             var p = record["p"].As<INode>();
             var d = record["d"].As<INode>();
-            // Node CuaHang có thể không tồn tại nếu truy vấn toàn bộ sản phẩm
             var ch = record.Keys.Contains("ch") ? record["ch"].As<INode>() : null;
 
-            // Quan hệ CUNG_CAP (chứa SoTon) có thể không tồn tại
-            var soTon = record.Keys.Contains("r")
-                        && record["r"].As<IRelationship>().Properties.ContainsKey("SoTon")
-                        ? record["r"].As<IRelationship>().Properties["SoTon"].As<long>()
-                        : 0;
+            // ⭐ ĐẢM BẢO GIÁ TRỊ MẶC ĐỊNH LUÔN LÀ 0 TẠI ĐÂY
+            long soTon = 0;
 
-            // Tên cửa hàng để hiển thị
+            // Chỉ lấy SoTon từ mối quan hệ 'r' nếu maCH không phải "ALL" VÀ 'r' tồn tại
+            if (maCH != "ALL" && record.Keys.Contains("r"))
+            {
+                var r = record["r"].As<IRelationship>();
+                // Lấy SoTon từ mối quan hệ CUNG_CAP, nếu không có thì vẫn là 0
+                soTon = r.Properties.ContainsKey("SoTon")
+                    ? r.Properties["SoTon"].As<long>()
+                    : 0;
+            }
+            // Nếu maCH là ALL hoặc 'r' không tồn tại, soTon = 0
+
             var tenCH = ch?.Properties.ContainsKey("TenCH") == true ? ch.Properties["TenCH"].As<string>() : "Tất cả";
-
 
             return new Products
             {
@@ -59,15 +63,11 @@ namespace organic_store.Services
                 MoTa = p.Properties.ContainsKey("MoTa") ? p.Properties["MoTa"].As<string>() : "",
                 HinhAnhURL = p.Properties.ContainsKey("HinhAnhURL") ? p.Properties["HinhAnhURL"].As<string>() : "",
                 MaDM = d.Properties.ContainsKey("MaDM") ? d.Properties["MaDM"].As<string>() : "",
-
-                // Thuộc tính mới
-                SoTon = soTon,
+                SoTon = soTon, // ⭐ Sẽ là 0 nếu không lấy được
                 TenCH = tenCH
             };
         }
 
-
-        // PHƯƠNG THỨC MỚI: Lấy danh sách Cửa hàng
         public async Task<List<CuaHang>> GetAllStoresAsync()
         {
             var query = @"
@@ -92,15 +92,16 @@ namespace organic_store.Services
             });
         }
 
-        // CẬP NHẬT: Lấy sản phẩm theo MaCH
         public async Task<List<Products>> GetAllProductsAsync(string maCH = null)
         {
-            // Xây dựng câu lệnh Cypher dựa trên MaCH
-            var matchClause = maCH == "ALL" || string.IsNullOrEmpty(maCH)
+            maCH = string.IsNullOrEmpty(maCH) ? "ALL" : maCH;
+
+            var matchClause = maCH == "ALL"
                 ? "(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)"
+                // Bắt buộc phải có r:CUNG_CAP để lấy r.SoTon khi lọc theo cửa hàng
                 : "(ch:CuaHang {MaCH: $maCH})-[r:CUNG_CAP]->(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)";
 
-            var returnClause = maCH == "ALL" || string.IsNullOrEmpty(maCH)
+            var returnClause = maCH == "ALL"
                 ? "RETURN p, d"
                 : "RETURN p, d, r, ch";
 
@@ -109,28 +110,30 @@ namespace organic_store.Services
                 {returnClause}
             ";
 
-            return await ExecuteReadAsync(async tx =>
+            return await ExecuteReadAsync(async session =>
             {
-                var result = await tx.RunAsync(cypherQuery, new { maCH });
+                var result = await session.RunAsync(cypherQuery, new { maCH });
                 var records = await result.ToListAsync();
-                return records.Select(MapRecordToProduct).ToList();
+                return records.Select(record => MapRecordToProduct(record, maCH)).ToList();
             });
         }
 
-        // CẬP NHẬT: Tìm kiếm sản phẩm theo keyword và MaCH
+        // Tìm kiếm sản phẩm theo keyword và MaCH
         public async Task<List<Products>> SearchProductsAsync(string keyword, string maCH = null)
         {
-            var matchClause = maCH == "ALL" || string.IsNullOrEmpty(maCH)
+            maCH = string.IsNullOrEmpty(maCH) ? "ALL" : maCH;
+
+            var matchClause = maCH == "ALL"
                 ? "(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)"
                 : "(ch:CuaHang {MaCH: $maCH})-[r:CUNG_CAP]->(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)";
 
-            var returnClause = maCH == "ALL" || string.IsNullOrEmpty(maCH)
+            var returnClause = maCH == "ALL"
                 ? "RETURN p, d"
                 : "RETURN p, d, r, ch";
 
             var query = $@"
                 MATCH {matchClause}
-                WHERE toLower(p.TenSP) CONTAINS toLower($kw)
+                WHERE toLower(p.TenSP) CONTAINS toLower($kw) OR toLower(p.MaSP) CONTAINS toLower($kw)
                 {returnClause}
             ";
 
@@ -138,7 +141,37 @@ namespace organic_store.Services
             {
                 var result = await session.RunAsync(query, new { kw = keyword ?? "", maCH });
                 var records = await result.ToListAsync();
-                return records.Select(MapRecordToProduct).ToList();
+                // ⭐ Truyền maCH vào MapRecordToProduct
+                return records.Select(record => MapRecordToProduct(record, maCH)).ToList();
+            });
+        }
+
+        public async Task<long> GetStockByProductAsync(string maSP, string maCH)
+        {
+            if (maCH == "ALL")
+            {
+                return 0; // Luôn trả về 0 nếu đang ở chế độ "Tất cả cửa hàng"
+            }
+
+            return await ExecuteReadAsync(async session =>
+            {
+                var query = @"
+                    MATCH (ch:CuaHang {MaCH: $maCH})-[r:CUNG_CAP]->(sp:SanPham {MaSP: $maSP})
+                    RETURN r.SoTon AS SoTon
+                    LIMIT 1
+                ";
+                var result = await session.RunAsync(query, new { maSP, maCH });
+
+                var record = (await result.ToListAsync()).FirstOrDefault();
+
+                if (record != null && record.Values.ContainsKey("SoTon"))
+                {
+                    // Trả về số tồn kho thực tế
+                    return record["SoTon"].As<long>();
+                }
+
+                // ⭐ Quan trọng: Nếu không tìm thấy tồn kho, trả về 0
+                return 0;
             });
         }
 

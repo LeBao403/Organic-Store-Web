@@ -1,0 +1,131 @@
+﻿@model organic_store.Models.Products
+
+@{
+    ViewBag.Title = Model.TenSP;
+    long safeSoTon = Model.SoTon < 0 ? 0 : Model.SoTon;
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 text-center">
+            <img src="@Model.HinhAnhURL" class="img-fluid rounded" alt="@Model.TenSP" />
+        </div>
+        <div class="col-md-6">
+            <h2>@Model.TenSP</h2>
+            <p><strong>Đơn giá:</strong> <span id="unit-price" data-price="@Model.GiaBan">@Model.GiaBan.ToString("N0")</span> ₫</p>
+            <div class="mb-3">
+                <label for="quantity">Số lượng:</label>
+                <input type="number" id="quantity" value="1" min="1" max="@safeSoTon" class="form-control" style="width: 120px;"
+                       @(safeSoTon <= 0 ? "disabled" : "") />
+
+                @if (safeSoTon > 0) 
+                {
+                <small class="text-muted">Còn @safeSoTon sản phẩm</small>
+                }
+                else
+                {
+                <small class="text-danger">Hết hàng</small>
+                }
+            </div>
+            <p><strong>Thành tiền:</strong> <span id="total-price">@Model.GiaBan.ToString("N0")</span> ₫</p>
+            <button id="addToCartDetail"
+                    class="btn btn-success add-to-cart-btn"
+                    data-id="@Model.MaSP"
+                    data-name="@Model.TenSP"
+                    data-price="@Model.GiaBan"
+                    data-image="@Model.HinhAnhURL"
+                    data-stock="@safeSoTon"
+                    @(safeSoTon <= 0 ? "disabled" : "")>
+                <i class="bi bi-cart-plus"></i> @(safeSoTon <= 0 ? "Hết hàng" : "Thêm vào giỏ hàng")
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container.body-content {
+        margin-top: 100px;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        var quantityInput = $('#quantity');
+        var totalPrice = $('#total-price');
+        var unitPrice = parseFloat($('#unit-price').data('price'));
+
+        // ⭐ BƯỚC SỬA 1: Đảm bảo maxStock không âm (cũng là logic phòng thủ)
+        var maxStock = parseInt(quantityInput.attr('max'));
+        if (maxStock < 0) {
+            maxStock = 0;
+            quantityInput.attr('max', 0); // Cập nhật lại thuộc tính max
+        }
+
+        quantityInput.on('input', function () {
+            var qty = parseInt($(this).val());
+
+            var currentMaxStock = parseInt($(this).attr('max'));
+            if (currentMaxStock < 0) currentMaxStock = 0;
+
+            if (qty > currentMaxStock) {
+                $(this).val(currentMaxStock);
+                qty = currentMaxStock;
+                // Thông báo sẽ hiện 0 nếu hết hàng
+                alert(`⚠️ Số lượng không được vượt quá ${currentMaxStock}!`);
+            }
+            if (qty < 1) {
+                $(this).val(1);
+                qty = 1;
+            }
+            totalPrice.text((qty * unitPrice).toLocaleString('vi-VN') + ' ₫');
+        });
+
+        $('#addToCartDetail').click(function (e) {
+            e.preventDefault();
+            var btn = $(this);
+            var selectedStore = '@ViewBag.SelectedStore';
+            var quantity = parseInt($('#quantity').val());
+
+            if (!selectedStore || selectedStore === "ALL") {
+                alert("Vui lòng chọn cửa hàng trước khi thêm sản phẩm!");
+                return;
+            }
+
+            // ⭐ BƯỚC SỬA 2: Lấy lại maxStock từ data-stock của button
+            var maxStockBtn = parseInt(btn.data('stock'));
+            if (maxStockBtn < 0) maxStockBtn = 0;
+
+            if (quantity > maxStockBtn) {
+                alert(`Số lượng không được vượt quá ${maxStockBtn}!`);
+                return;
+            }
+
+            var product = {
+                MaSP: btn.data('id'),
+                TenSP: btn.data('name'),
+                GiaBan: btn.data('price'),
+                HinhAnhURL: btn.data('image'),
+                Quantity: quantity
+            };
+
+            $.ajax({
+                url: '/Cart/AddToCart',
+                type: 'POST',
+                data: product,
+                success: function (res) {
+                    if (res.success) {
+                        $('#cart-count').text(res.count);
+                        alert("Đã thêm " + product.TenSP + " vào giỏ hàng!");
+                    } else {
+                        alert(res.message || "Thêm sản phẩm thất bại!");
+                    }
+                },
+                error: function () {
+                    alert("Lỗi khi thêm sản phẩm vào giỏ hàng!");
+                }
+            });
+        });
+
+        // Khởi tạo giá trị ban đầu
+        quantityInput.trigger('input');
+    });
+</script>>

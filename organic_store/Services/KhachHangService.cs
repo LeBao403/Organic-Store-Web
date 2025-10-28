@@ -16,16 +16,18 @@ namespace organic_store.Services
             _driver = MvcApplication.Neo4jDriver;
         }
 
-        // Lấy thông tin khách hàng theo mã KH
-        public async Task<KhachHang> GetKhachHangByIdAsync(string maKH)
+        // Lấy thông tin khách hàng theo mã KH
+        public async Task<KhachHang> GetKhachHangByIdAsync(string maKH)
         {
-            using (var session = _driver.AsyncSession(config => config.WithDatabase("organic-store")))
+            IAsyncSession session = null;
+            try
             {
                 var query = @"
-                    MATCH (k:KhachHang {MaKH: $maKH})
-                    RETURN k
-                ";
+                    MATCH (k:KhachHang {MaKH: $maKH})
+                    RETURN k
+                ";
 
+                session = _driver.AsyncSession(config => config.WithDatabase("organic-store"));
                 var result = await session.RunAsync(query, new { maKH });
                 var record = (await result.ToListAsync()).FirstOrDefault();
 
@@ -44,6 +46,11 @@ namespace organic_store.Services
                     NgaySinh = k.Properties.ContainsKey("NgaySinh") ? DateTime.Parse(k.Properties["NgaySinh"].As<string>()) : DateTime.MinValue,
                     LoaiKH = k.Properties.ContainsKey("LoaiKH") ? k.Properties["LoaiKH"].As<string>() : "thường"
                 };
+            }
+            finally
+            {
+                if (session != null)
+                    await session.CloseAsync();
             }
         }
     }

@@ -9,42 +9,46 @@ else
     <div class="row g-4">
         @foreach (var item in Model)
         {
+            // ⭐ Khai báo một biến an toàn cục bộ trong phạm vi vòng lặp,
+            // đảm bảo giá trị tồn kho luôn >= 0.
+            long safeStockValue = item.SoTon < 0 ? 0 : item.SoTon;
+
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card product-card h-100">
                     <div class="position-relative">
-                        @* Logic khuyến mãi: Giữ nguyên badge, nhưng khuyến nghị tính toán ở Controller *@
-                        <span class="badge-discount">-25%</span> @* Thay bằng giá trị cố định hoặc tính từ Model *@
-                        <img src="@item.HinhAnhURL" class="product-image" alt="@item.TenSP" onerror="this.src='~/assets/Images/default-image.jpg'" />
+                        <a href="@Url.Action("Details", "Product", new { id = item.MaSP })">
+                            <img src="@item.HinhAnhURL"
+                                 class="product-image"
+                                 alt="@item.TenSP"
+                                 onerror="this.src='~/assets/Images/default-image.jpg'" />
+                        </a>
+                        <span class="badge-discount">-25%</span>
                     </div>
+
                     <div class="card-body">
-                        <h5 class="card-title">@item.TenSP</h5>
+                        <h5 class="card-title">
+                            <a href="@Url.Action("Details", "Product", new { id = item.MaSP })"
+                               class="text-decoration-none text-dark">@item.TenSP</a>
+                        </h5>
                         <p class="card-text text-muted">@item.MoTa</p>
 
-                        @* BỔ SUNG THÔNG TIN CỬA HÀNG VÀ TỒN KHO *@
                         @if (!string.IsNullOrEmpty(item.TenCH) && item.TenCH != "Tất cả")
                         {
-                            <p class="mb-1 small">
-                                <i class="fas fa-store text-info me-1"></i>
-                                **Cửa hàng:** <span class="fw-bold">@item.TenCH</span>
-                            </p>
-                            <p class="mb-2 small @(item.SoTon > 0 ? "text-success" : "text-danger")">
-                                <i class="fas fa-boxes me-1"></i>
-                                **Tồn kho:** <span class="fw-bold">@(item.SoTon > 0 ? item.SoTon.ToString() : "Hết hàng")</span>
+                            <p class="small mb-1"><i class="fas fa-store text-info me-1"></i><strong>Cửa hàng:</strong> @item.TenCH</p>
+                            // Dùng biến an toàn
+                            <p class="small mb-2 @(safeStockValue > 0 ? "text-success" : "text-danger")">
+                                <i class="fas fa-boxes me-1"></i><strong>Tồn kho:</strong> @(safeStockValue > 0 ? safeStockValue.ToString() : "Hết hàng")
                             </p>
                         }
                         else
                         {
-                            <p class="mb-2 small text-muted">
-                                <i class="fas fa-globe me-1"></i>
-                                **Cửa hàng:** @item.TenCH
-                            </p>
+                            <p class="small text-muted mb-2"><i class="fas fa-globe me-1"></i><strong>Cửa hàng:</strong> @item.TenCH</p>
                         }
-                        @* KẾT THÚC BỔ SUNG *@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <span class="product-price">@String.Format("{0:N0}đ", item.GiaBan)</span>
-                                <span class="product-unit">/@item.DonVi</span> @* Thêm đơn vị tính *@
+                                <span class="product-unit">/@item.DonVi</span>
                             </div>
                             <div>
                                 <i class="fas fa-star text-warning"></i>
@@ -54,9 +58,20 @@ else
                                 <i class="fas fa-star-half-alt text-warning"></i>
                             </div>
                         </div>
-                        <button class="btn btn-add-cart w-100 mt-3" @(item.SoTon == 0 && item.TenCH != "Tất cả" ? "disabled" : "")>
-                            <i class="fas fa-cart-plus"></i> @(item.SoTon == 0 && item.TenCH != "Tất cả" ? "Hết hàng" : "Thêm vào giỏ")
-                        </button>
+
+                        <div class="card-body">
+                            
+                            <button class="btn btn-add-cart w-100 mt-3 add-to-cart-btn"
+                                    data-id="@item.MaSP"
+                                    data-name="@item.TenSP"
+                                    data-price="@item.GiaBan"
+                                    data-image="@item.HinhAnhURL"
+                                    data-stock="@safeStockValue"
+                                    @(safeStockValue == 0 && item.TenCH != "Tất cả" ? "disabled" : "")>
+                                <i class="fas fa-cart-plus"></i>
+                                @(safeStockValue == 0 && item.TenCH != "Tất cả" ? "Hết hàng" : "Thêm vào giỏ")
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 ﻿@using organic_store.Models
 @{
-    string currentMaCH = ViewBag.CurrentMaCH ?? "ALL";
+    string currentMaCH = ViewBag.CurrentMaCH ?? Session["SelectedStore"] as string ?? "ALL";
 }
 
 @Html.Partial("~/Views/Shared/_Layout_Pagination.cshtml", new PagerViewModel
@@ -10,6 +10,5 @@
     TotalCount = ViewBag.TotalCount,
     DisplayPages = 5,
     ActionName = "Index",
-
     RouteValues = new { maCH = currentMaCH }
 })

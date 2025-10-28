@@ -11,37 +11,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
 </head>
 <body>
-
-    @* Lấy thông tin người dùng Khách Hàng từ Session *@
     @{
-        // Ép kiểu trực tiếp sang KhachHang
         var currentKhachHang = Session["CurrentUser"] as organic_store.Models.KhachHang;
     }
-
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="@Url.Action("Index", "Home")">Organic Shop</a>
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Giới thiệu</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Rau củ tươi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Trái cây</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Gia Vị Thiên Nhiên</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Ngũ Cốc Hữu Cơ</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="#">Giới thiệu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Rau củ tươi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Trái cây</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Gia Vị Thiên Nhiên</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Ngũ Cốc Hữu Cơ</a></li>
                 </ul>
             </div>
             <div class="d-flex align-items-center">
-
                 <div class="search-bar me-3">
                     <i class="fas fa-search text-muted"></i>
                     <input type="text" class="form-control-plaintext live-search"
@@ -50,30 +35,24 @@
                            placeholder="Tìm kiếm ...">
                 </div>
 
-                @* LOGIC HIỂN THỊ TÊN HOẶC ICON USER *@
                 <div class="me-3">
                     @if (currentKhachHang != null)
                     {
-                        // Đã đăng nhập: Hiển thị "Hi, Tên"
-                        <span class="text-dark">
-                            <a href="@Url.Action("CheckLogin", "Account")" class="text-dark text-decoration-none" title="Trang cá nhân">
-                                <span class="fw-bold">Hi, @currentKhachHang.HoTen</span>
-                            </a>
-                        </span>
+                        <a href="@Url.Action("CheckLogin", "Account")" class="text-dark text-decoration-none fw-bold">
+                            Hi, @currentKhachHang.HoTen
+                        </a>
                     }
                     else
                     {
-                        // Chưa đăng nhập: Hiển thị icon user
                         <a href="@Url.Action("CheckLogin", "Account")" class="text-dark" title="Đăng nhập / Đăng ký">
                             <i class="fas fa-user"></i>
                         </a>
                     }
                 </div>
-                @* KẾT THÚC LOGIC *@
 
-                <a href="#" class="text-dark position-relative">
+                <a href="/Cart/Index" class="nav-link position-relative">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">1</span>
+                    <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle">0</span>
                 </a>
             </div>
         </div>
@@ -84,54 +63,108 @@
     </div>
 
     <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div>
-                    <h5>Về Chúng Tôi</h5>
-                    <ul>
-                        <li><a href="#">Giới thiệu</a></li>
-                        <li><a href="#">Liên hệ</a></li>
-                        <li><a href="#">Chính sách</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h5>Hỗ Trợ</h5>
-                    <ul>
-                        <li><a href="#">Hướng dẫn mua hàng</a></li>
-                        <li><a href="#">Chính sách đổi trả</a></li>
-                        <li><a href="#">Hỏi đáp</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h5>Kết Nối</h5>
-                    <div class="social-icons">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Organic Shop. Mang niềm vui đến cho mọi nhà.</p>
-            </div>
+        <div class="container text-center py-3 border-top">
+            <p>&copy; 2025 Organic Shop. Mang niềm vui đến cho mọi nhà.</p>
         </div>
     </footer>
+
+    
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("scripts", required: false)
+
+
     <script>
-        // Navbar hide on scroll down, show on scroll up
-        let lastScroll = 0;
-        const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            let currentScroll = window.pageYOffset;
-            if (currentScroll > lastScroll && currentScroll > 100) {
-                navbar.style.transform = 'translateY(-100%)';
-            } else {
-                navbar.style.transform = 'translateY(0)';
-            }
-            lastScroll = currentScroll;
+        
+        function updateCartCount(storeId) {
+            $.get("@Url.Action("GetCartCount", "Cart")", { maCH: storeId }, function (res) {
+                if (res && res.count !== undefined) {
+                    $("#cart-count").text(res.count);
+                } else {
+                    $("#cart-count").text("0");
+                }
+            }).fail(function() {
+                
+                $("#cart-count").text("0");
+            });
+        }
+
+        $(document).ready(function () {
+            
+            var initialStore = $("#storeSelect").val() || sessionStorage.getItem("selectedStore") || "ALL";
+            $("#storeSelect").val(initialStore);
+            updateCartCount(initialStore);
+
+            $(document).on("change", "#storeSelect", function () {
+                var storeId = $(this).val();
+                sessionStorage.setItem("selectedStore", storeId);
+
+                
+                $.post("@Url.Action("SetSelectedStore", "Home")", { maCH: storeId }, function () {
+                    
+                    window.location.href = '@Url.Action("Index", "Home")?maCH=' + storeId;
+                });
+            });
+
+
+           
+            $(document).on("click", ".add-to-cart-btn", function (e) {
+                e.preventDefault();
+                var btn = $(this);
+                
+                var storeId = $("#storeSelect").val() || sessionStorage.getItem("selectedStore");
+
+                if (!storeId || storeId === "ALL") {
+                    alert("Vui lòng chọn cửa hàng trước khi thêm sản phẩm vào giỏ hàng!");
+                    return;
+                }
+
+                
+                var quantity = parseInt(btn.data("quantity")) || parseInt($("#quantity").val()) || 1;
+                var maxStock = parseInt(btn.data("stock")) || 0;
+                if (maxStock < 0) {
+                    maxStock = 0;
+                }
+                if (quantity > maxStock) {
+                    alert(`Số lượng không được vượt quá ${maxStock}!`);
+                    return;
+                }
+
+                var product = {
+                    MaSP: btn.data("id"),
+                    TenSP: btn.data("name"),
+                    GiaBan: btn.data("price"),
+                    HinhAnhURL: btn.data("image"),
+                    Quantity: quantity,
+                    MaCH: storeId
+                };
+
+                $.ajax({
+                    url: "@Url.Action("AddToCart", "Cart")",
+                    type: "POST",
+                    data: product,
+                    success: function (res) {
+                        if (res.redirect) {
+                            
+                            alert("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
+                            window.location.href = res.redirect;
+                        }
+                        else if (res.success) {
+                            
+                            updateCartCount(storeId);
+                            alert("Đã thêm " + product.TenSP + " vào giỏ hàng (" + $("#storeSelect option:selected").text() + ")");
+                        } else {
+                            
+                            alert(res.message || "❌ Thêm sản phẩm thất bại!");
+                        }
+                    },
+                    error: function () {
+                        alert("Lỗi mạng hoặc lỗi server khi thêm sản phẩm!");
+                    }
+                });
+            });
+            
         });
     </script>
 </body>

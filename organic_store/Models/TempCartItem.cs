@@ -5,19 +5,14 @@ using System.Web;
 
 namespace organic_store.Models
 {
-    public class Products
+    public class TempCartItem
     {
-        public long Id { get; set; }
         public string MaSP { get; set; }
         public string TenSP { get; set; }
-        public string DonVi { get; set; }
         public double GiaBan { get; set; }
-        public string MoTa { get; set; }
         public string HinhAnhURL { get; set; }
-
-        public string MaDM { get; set; }
-
-        public long SoTon { get; set; } = 0;
-        public string TenCH { get; set; }
+        public int Quantity { get; set; }
+        public long SoTon { get; set; }
+        public string MaCH { get; set; }
     }
 }
