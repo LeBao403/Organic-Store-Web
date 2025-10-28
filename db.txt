@@ -253,3 +253,91 @@ MATCH (pn:PhieuNhap {MaPN:"PN002"})-[nhap:NHAP_SANPHAM]->(sp:SanPham),
 MERGE (ch)-[r:CUNG_CAP]->(sp)
 ON CREATE SET r.SoTon = nhap.SoLuong
 ON MATCH SET r.SoTon = r.SoTon + nhap.SoLuong;
+
+UNWIND [
+  {ma: "SP002", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629429/SP002_sxgshg.jpg"},
+  {ma: "SP004", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629429/SP004_wd1xd5.jpg"},
+  {ma: "SP005", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629429/SP005_wasb5l.png"},
+  {ma: "SP006", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629430/SP006_hx0pge.png"},
+  {ma: "SP007", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629429/SP007_vfhbm9.jpg"},
+  {ma: "SP008", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629434/SP008_qijw7u.png"},
+  {ma: "SP009", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629430/SP009_nyzs6r.jpg"},
+  {ma: "SP010", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629430/SP010_drruoq.png"},
+  {ma: "SP012", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629430/SP012_gdmrsx.png"},
+  {ma: "SP013", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629429/SP013_f7eijf.png"},
+  {ma: "SP014", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629430/SP014_hzmm4a.jpg"},
+  {ma: "SP015", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP015_bnldnx.png"},
+  {ma: "SP016", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP016_tulscv.png"},
+  {ma: "SP017", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP017_eddajg.jpg"},
+  {ma: "SP018", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP018_oneagg.jpg"},
+  {ma: "SP019", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP019_wy6xsx.jpg"},
+  {ma: "SP020", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP020_dmhbuy.jpg"},
+  {ma: "SP021", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP021_ebvwsg.png"},
+  {ma: "SP022", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP022_qgvqzp.jpg"},
+  {ma: "SP023", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP023_c5clap.jpg"},
+  {ma: "SP024", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP024_uzqlad.jpg"},
+  {ma: "SP025", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP025_fo0p86.png"},
+  {ma: "SP026", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP026_uaz7fa.jpg"},
+  {ma: "SP027", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629435/SP027_ry7qv1.jpg"},
+  {ma: "SP029", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629436/SP029_iznnft.png"},
+  {ma: "SP030", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629436/SP030_tvr9o2.jpg"},
+  {ma: "SP031", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629436/SP031_uesbpl.png"},
+  {ma: "SP032", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629437/SP032_fimi4k.jpg"},
+  {ma: "SP033", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629437/SP033_mtggcv.png"},
+  {ma: "SP034", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629439/SP034_wylhab.png"},
+  {ma: "SP035", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629438/SP035_ncrowe.jpg"},
+  {ma: "SP036", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629439/SP036_x1alxz.jpg"},
+  {ma: "SP037", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629439/SP037_ccxdxv.png"},
+  {ma: "SP038", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629442/SP038_spau47.png"},
+  {ma: "SP039", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629442/SP039_ey6n9q.jpg"},
+  {ma: "SP040", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629442/SP040_n82ca4.jpg"}
+] AS map
+MATCH (sp:SanPham {MaSP: map.ma})
+SET sp.HinhAnhURL = map.url
+RETURN sp.MaSP, sp.TenSP, sp.HinhAnhURL AS newURL
+ORDER BY sp.MaSP;UNWIND [
+  {ma: "SP002", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629429/SP002_sxgshg.jpg"},
+  {ma: "SP004", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629429/SP004_wd1xd5.jpg"},
+  {ma: "SP005", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629429/SP005_wasb5l.png"},
+  {ma: "SP006", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629430/SP006_hx0pge.png"},
+  {ma: "SP007", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629429/SP007_vfhbm9.jpg"},
+  {ma: "SP008", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629434/SP008_qijw7u.png"},
+  {ma: "SP009", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629430/SP009_nyzs6r.jpg"},
+  {ma: "SP010", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629430/SP010_drruoq.png"},
+  {ma: "SP012", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629430/SP012_gdmrsx.png"},
+  {ma: "SP013", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629429/SP013_f7eijf.png"},
+  {ma: "SP014", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629430/SP014_hzmm4a.jpg"},
+  {ma: "SP015", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP015_bnldnx.png"},
+  {ma: "SP016", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP016_tulscv.png"},
+  {ma: "SP017", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP017_eddajg.jpg"},
+  {ma: "SP018", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP018_oneagg.jpg"},
+  {ma: "SP019", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP019_wy6xsx.jpg"},
+  {ma: "SP020", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629431/SP020_dmhbuy.jpg"},
+  {ma: "SP021", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP021_ebvwsg.png"},
+  {ma: "SP022", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP022_qgvqzp.jpg"},
+  {ma: "SP023", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP023_c5clap.jpg"},
+  {ma: "SP024", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP024_uzqlad.jpg"},
+  {ma: "SP025", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP025_fo0p86.png"},
+  {ma: "SP026", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629432/SP026_uaz7fa.jpg"},
+  {ma: "SP027", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629435/SP027_ry7qv1.jpg"},
+  {ma: "SP029", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629436/SP029_iznnft.png"},
+  {ma: "SP030", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629436/SP030_tvr9o2.jpg"},
+  {ma: "SP031", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629436/SP031_uesbpl.png"},
+  {ma: "SP032", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629437/SP032_fimi4k.jpg"},
+  {ma: "SP033", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629437/SP033_mtggcv.png"},
+  {ma: "SP034", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629439/SP034_wylhab.png"},
+  {ma: "SP035", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629438/SP035_ncrowe.jpg"},
+  {ma: "SP036", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629439/SP036_x1alxz.jpg"},
+  {ma: "SP037", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629439/SP037_ccxdxv.png"},
+  {ma: "SP038", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629442/SP038_spau47.png"},
+  {ma: "SP039", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629442/SP039_ey6n9q.jpg"},
+  {ma: "SP040", url: "https://res.cloudinary.com/dhgzp2ifm/image/upload/v1761629442/SP040_n82ca4.jpg"}
+] AS map
+MATCH (sp:SanPham {MaSP: map.ma})
+SET sp.HinhAnhURL = map.url
+RETURN sp.MaSP, sp.TenSP, sp.HinhAnhURL AS newURL
+ORDER BY sp.MaSP;
+
+MATCH (hd:HoaDon)
+SET hd.TrangThai = 'Chờ xử lý'
+RETURN count(hd) AS SoHoaDonDuocCapNhat;

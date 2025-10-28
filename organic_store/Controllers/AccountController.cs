@@ -67,6 +67,13 @@ namespace organic_store.Controllers
         {
             if (!ModelState.IsValid)
             {
+                return View(model); 
+            }
+
+            var (exists, errorMessage) = await _accountService.CheckDuplicateAsync(model.TenDangNhap, model.Email, model.SoDienThoai);
+            if (exists)
+            {
+                ViewBag.Error = errorMessage; 
                 return View(model);
             }
 
@@ -81,7 +88,7 @@ namespace organic_store.Controllers
             if (result)
             {
                 ViewBag.Success = "Đăng ký thành công! Bạn có thể đăng nhập ngay.";
-                return View();
+                return View(); 
             }
             else
             {

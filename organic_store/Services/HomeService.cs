@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Mvc; 
 
 namespace organic_store.Services
 {
@@ -38,7 +39,7 @@ namespace organic_store.Services
             var d = record["d"].As<INode>();
             var ch = record.Keys.Contains("ch") ? record["ch"].As<INode>() : null;
 
-            // ⭐ ĐẢM BẢO GIÁ TRỊ MẶC ĐỊNH LUÔN LÀ 0 TẠI ĐÂY
+            // ĐẢM BẢO GIÁ TRỊ MẶC ĐỊNH LUÔN LÀ 0 TẠI ĐÂY
             long soTon = 0;
 
             // Chỉ lấy SoTon từ mối quan hệ 'r' nếu maCH không phải "ALL" VÀ 'r' tồn tại
@@ -63,11 +64,30 @@ namespace organic_store.Services
                 MoTa = p.Properties.ContainsKey("MoTa") ? p.Properties["MoTa"].As<string>() : "",
                 HinhAnhURL = p.Properties.ContainsKey("HinhAnhURL") ? p.Properties["HinhAnhURL"].As<string>() : "",
                 MaDM = d.Properties.ContainsKey("MaDM") ? d.Properties["MaDM"].As<string>() : "",
-                SoTon = soTon, // ⭐ Sẽ là 0 nếu không lấy được
+                SoTon = soTon, // Sẽ là 0 nếu không lấy được
                 TenCH = tenCH
             };
         }
 
+        public async Task<List<DanhMuc>> GetAllCategoriesAsync()
+        {
+            return await ExecuteReadAsync(async session =>
+            {
+                var query = "MATCH (d:DanhMuc) RETURN d ORDER BY d.MaDM";
+                var result = await session.RunAsync(query);
+                return await result.ToListAsync(record =>
+                {
+                    var dNode = record["d"].As<INode>();
+                    return new DanhMuc
+                    {
+                        MaDM = dNode.Properties["MaDM"].As<string>(),
+                        TenDM = dNode.Properties["TenDM"].As<string>()
+                    };
+                });
+            });
+        }
+
+        // Lấy danh sách Cửa hàng
         public async Task<List<CuaHang>> GetAllStoresAsync()
         {
             var query = @"
@@ -92,56 +112,76 @@ namespace organic_store.Services
             });
         }
 
-        public async Task<List<Products>> GetAllProductsAsync(string maCH = null)
+        public async Task<List<Products>> GetAllProductsAsync(string maCH = "ALL", string maDM = "ALL")
         {
-            maCH = string.IsNullOrEmpty(maCH) ? "ALL" : maCH;
+            string matchClause;
+            string returnClause;
 
-            var matchClause = maCH == "ALL"
-                ? "(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)"
-                // Bắt buộc phải có r:CUNG_CAP để lấy r.SoTon khi lọc theo cửa hàng
-                : "(ch:CuaHang {MaCH: $maCH})-[r:CUNG_CAP]->(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)";
+            if (maCH == "ALL" || string.IsNullOrEmpty(maCH))
+            {
+                matchClause = "(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)";
+                returnClause = "RETURN p, d";
+            }
+            else
+            {
+                matchClause = "(ch:CuaHang {MaCH: $maCH})-[r:CUNG_CAP]->(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)";
+                returnClause = "RETURN p, d, r, ch";
+            }
 
-            var returnClause = maCH == "ALL"
-                ? "RETURN p, d"
-                : "RETURN p, d, r, ch";
+            string whereClause = "";
+            if (!string.IsNullOrEmpty(maDM) && maDM != "ALL")
+            {
+                whereClause = "WHERE d.MaDM = $maDM";
+            }
 
             var cypherQuery = $@"
                 MATCH {matchClause}
+                {whereClause}
                 {returnClause}
             ";
 
             return await ExecuteReadAsync(async session =>
             {
-                var result = await session.RunAsync(cypherQuery, new { maCH });
+                var result = await tx.RunAsync(cypherQuery, new { maCH, maDM });
                 var records = await result.ToListAsync();
                 return records.Select(record => MapRecordToProduct(record, maCH)).ToList();
             });
         }
 
-        // Tìm kiếm sản phẩm theo keyword và MaCH
-        public async Task<List<Products>> SearchProductsAsync(string keyword, string maCH = null)
+        // Tìm kiếm sản phẩm theo Keyword, MaCH VÀ MaDM
+        public async Task<List<Products>> SearchProductsAsync(string keyword, string maCH = "ALL", string maDM = "ALL")
         {
-            maCH = string.IsNullOrEmpty(maCH) ? "ALL" : maCH;
+            string matchClause;
+            string returnClause;
 
-            var matchClause = maCH == "ALL"
-                ? "(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)"
-                : "(ch:CuaHang {MaCH: $maCH})-[r:CUNG_CAP]->(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)";
+            if (maCH == "ALL" || string.IsNullOrEmpty(maCH))
+            {
+                matchClause = "(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)";
+                returnClause = "RETURN p, d";
+            }
+            else
+            {
+                matchClause = "(ch:CuaHang {MaCH: $maCH})-[r:CUNG_CAP]->(p:SanPham)-[:THUOC_DANHMUC]->(d:DanhMuc)";
+                returnClause = "RETURN p, d, r, ch";
+            }
 
-            var returnClause = maCH == "ALL"
-                ? "RETURN p, d"
-                : "RETURN p, d, r, ch";
+            string whereCondition = $"toLower(p.TenSP) CONTAINS toLower($kw)";
+
+            if (!string.IsNullOrEmpty(maDM) && maDM != "ALL")
+            {
+                whereCondition += $" AND d.MaDM = $maDM";
+            }
 
             var query = $@"
                 MATCH {matchClause}
-                WHERE toLower(p.TenSP) CONTAINS toLower($kw) OR toLower(p.MaSP) CONTAINS toLower($kw)
+                WHERE {whereCondition}
                 {returnClause}
             ";
 
             return await ExecuteReadAsync(async session =>
             {
-                var result = await session.RunAsync(query, new { kw = keyword ?? "", maCH });
+                var result = await session.RunAsync(query, new { kw = keyword ?? "", maCH, maDM });
                 var records = await result.ToListAsync();
-                // ⭐ Truyền maCH vào MapRecordToProduct
                 return records.Select(record => MapRecordToProduct(record, maCH)).ToList();
             });
         }

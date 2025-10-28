@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using organic_store.Models;
+using organic_store.Services;
 
 namespace organic_store.Controllers
 {
@@ -9,7 +11,7 @@ namespace organic_store.Controllers
     {
         private readonly HomeService _homeService = new HomeService();
 
-        public async Task<ActionResult> Index(string maCH)
+        public async Task<ActionResult> Index(string maCH = "ALL", string maDM = "ALL", int page = 1)
         {
             if (!string.IsNullOrEmpty(maCH))
             {
@@ -20,11 +22,19 @@ namespace organic_store.Controllers
                 Session["SelectedStore"] = "ALL";
             }
 
+
             var selectedStore = Session["SelectedStore"] as string;
+
+            // 1. Lấy danh sách cần thiết cho View và Layout
             var stores = await _homeService.GetAllStoresAsync();
+            var categories = await _homeService.GetAllCategoriesAsync();
+
+            // 2. Thiết lập ViewBag cho Layout và View
             ViewBag.Stores = stores;
-            ViewBag.SelectedStore = selectedStore;
-            ViewBag.CurrentMaCH = selectedStore;
+            ViewBag.Categories = categories; 
+            ViewBag.SelectedStore = selectedStore; 
+            ViewBag.CurrentMaCH = selectedStore; 
+            ViewBag.SelectedMaDM = maDM;
 
             var products = await _homeService.GetAllProductsAsync(selectedStore);
             ViewBag.Page = 1;
@@ -55,6 +65,19 @@ namespace organic_store.Controllers
         {
             Session["SelectedStore"] = maCH ?? "ALL";
             return Json(new { success = true });
+        }
+
+        // Nhận tham số MaCH VÀ MaDM để lọc
+        public async Task<ActionResult> Search(string q, string maCH = "ALL", string maDM = "ALL")
+        {
+            string keyword = q?.Trim() ?? "";
+            var result = await _homeService.SearchProductsAsync(keyword, maCH, maDM);
+            return PartialView("_ProductPartial", result);
+        }
+
+        public ActionResult AboutUs()
+        {
+            return View();
         }
     }
 }

@@ -18,7 +18,6 @@
         <div class="form-wrapper">
             <div id="registerForm" class="form-container">
                 <h2>Đăng Ký</h2>
-                <p class="subtitle">Tạo tài khoản mới</p>
 
                 @* Hiển thị thông báo lỗi nghiệp vụ *@
                 @if (ViewBag.Error != null)
@@ -26,7 +25,7 @@
                     <div class="error-message">@ViewBag.Error</div>
                 }
 
-                @* Hiển thị thông báo thành công *@
+                @* Hiển thị thông báo thành công (Hiển thị ngắn gọn ở đầu form) *@
                 @if (ViewBag.Success != null)
                 {
                     <div class="success-message">@ViewBag.Success</div>
@@ -35,23 +34,23 @@
                 @* Chỉ hiện form khi chưa đăng ký thành công *@
                 @if (ViewBag.Success == null)
                 {
-                    using (Html.BeginForm("Register", "Account", FormMethod.Post))
+                    <p class="subtitle">Tạo tài khoản mới</p> using (Html.BeginForm("Register", "Account", FormMethod.Post))
                     {
-                        // THÊM: HỌ VÀ TÊN
+                        // HỌ VÀ TÊN
                         <div class="input-group">
                             <label for="HoTen">Họ và tên</label>
                             @Html.TextBoxFor(m => m.HoTen, new { @id = "HoTen", placeholder = "Nhập họ và tên", required = "required" })
                             @Html.ValidationMessageFor(m => m.HoTen, "", new { @class = "error-message" })
                         </div>
 
-                        // ĐÃ CÓ: Tên đăng nhập
+                        // Tên đăng nhập
                         <div class="input-group">
                             <label for="TenDangNhap">Tên đăng nhập</label>
                             @Html.TextBoxFor(m => m.TenDangNhap, new { @id = "TenDangNhap", placeholder = "Chọn tên đăng nhập", required = "required" })
                             @Html.ValidationMessageFor(m => m.TenDangNhap, "", new { @class = "error-message" })
                         </div>
 
-                        // ĐÃ CÓ: Mật khẩu
+                        // Mật khẩu
                         <div class="input-group password-toggle">
                             <label for="MatKhau">Mật khẩu</label>
                             @Html.PasswordFor(m => m.MatKhau, new { @id = "MatKhau", placeholder = "Tạo mật khẩu", required = "required" })
@@ -59,21 +58,19 @@
                             <span class="toggle-icon" onclick="togglePassword('MatKhau')">👁️</span>
                         </div>
 
-                        // ĐÃ CÓ: Email
+                        // Email
                         <div class="input-group">
                             <label for="Email">Email</label>
                             @Html.TextBoxFor(m => m.Email, new { @id = "Email", placeholder = "example@email.com", type = "email", required = "required" })
                             @Html.ValidationMessageFor(m => m.Email, "", new { @class = "error-message" })
                         </div>
 
-                        // ĐÃ CÓ: Số điện thoại
+                        // Số điện thoại
                         <div class="input-group">
                             <label for="SoDienThoai">Số điện thoại</label>
                             @Html.TextBoxFor(m => m.SoDienThoai, new { @id = "SoDienThoai", placeholder = "0912345678", required = "required", pattern = "[0-9]{10,11}" })
                             @Html.ValidationMessageFor(m => m.SoDienThoai, "", new { @class = "error-message" })
                         </div>
-
-                        @* Các trường NgaySinh và DiaChiCuThe đã được loại bỏ theo yêu cầu *@
 
                         <button type="submit" class="btn">Đăng Ký</button>
                     }
@@ -83,9 +80,12 @@
                 }
                 else
                 {
-                    // Nếu đăng ký thành công, chỉ hiện link quay lại Đăng nhập
+                    <div class="success-box-wrapper">
+                        <h3>Đăng Ký Thành Công!</h3>
+                        <p class="success-message-text">@ViewBag.Success</p>
+                    </div>
                     <div class="login-link">
-                        <p><a href="@Url.Action("Login", "Account")">Quay lại Đăng nhập</a></p>
+                        <a href="@Url.Action("Login", "Account")" class="btn btn-login">Đăng Nhập Ngay</a>
                     </div>
                 }
             </div>

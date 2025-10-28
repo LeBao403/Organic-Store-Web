@@ -230,7 +230,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\css\profile.css" />
-    <Content Include="assets\css\responsive.css.css" />
+    <Content Include="assets\css\responsive.css" />
     <Content Include="assets\Images\anh1_yfen0w.png" />
     <Content Include="assets\Images\anh2_nhq106.png" />
     <Content Include="assets\Images\anh4_pggeza.png" />
@@ -298,6 +298,7 @@
     <Content Include="Views\Cart\Index.cshtml" />
     <Content Include="Views\Product\Details.cshtml" />
     <Content Include="Views\Cart\Checkout.cshtml" />
+    <Content Include="Views\Home\AboutUs.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
